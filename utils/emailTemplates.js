@@ -146,7 +146,7 @@ function createOrderConfirmationEmail(orderData) {
   
   <p>Your order will be carefully packaged and shipped to you soon. We'll send you a tracking number once it's on its way.</p>
   
-  <p>If you have any questions about your order, please don't hesitate to contact us.</p>
+  <p>If you have any questions about your order, please don't hesitate to contact us at <a href="mailto:gulmehak201984@gmail.com" style="color: #6b2d2d;">gulmehak201984@gmail.com</a></p>
   
   <div class="footer">
     <p><strong>GulMehak</strong><br>
@@ -186,7 +186,7 @@ Phone: ${shippingAddress.phone}
 
 Your order will be carefully packaged and shipped to you soon. We'll send you a tracking number once it's on its way.
 
-If you have any questions about your order, please don't hesitate to contact us.
+If you have any questions about your order, please don't hesitate to contact us at gulmehak201984@gmail.com
 
 GulMehak
 Premium Traditional Indian Garments
