@@ -453,6 +453,84 @@ footer {
   position: relative;
 }
 
+.address-modal-content {
+  max-width: 600px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.shipping-note {
+  background-color: #e8f5e9;
+  padding: 0.8rem;
+  border-radius: 5px;
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+  color: #2e7d32;
+  font-weight: 500;
+}
+
+.payment-note {
+  background-color: #fff3e0;
+  padding: 0.8rem;
+  border-radius: 5px;
+  margin-bottom: 1.5rem;
+  font-size: 0.9rem;
+  color: #e65100;
+  font-weight: 500;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+#addressForm input,
+#addressForm textarea,
+#addressForm select {
+  width: 100%;
+  padding: 0.9rem;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 0.95rem;
+  font-family: 'Montserrat', sans-serif;
+  transition: border-color 0.3s;
+}
+
+#addressForm input:focus,
+#addressForm textarea:focus,
+#addressForm select:focus {
+  outline: none;
+  border-color: #6b2d2d;
+}
+
+#addressForm textarea {
+  resize: vertical;
+  margin-bottom: 1rem;
+}
+
+.address-submit-button {
+  width: 100%;
+  padding: 1rem 2rem;
+  background-color: #6b2d2d;
+  color: white;
+  border: none;
+  font-size: 0.95rem;
+  font-weight: 500;
+  letter-spacing: 1.5px;
+  cursor: pointer;
+  transition: all 0.3s;
+  text-transform: uppercase;
+  border-radius: 5px;
+  margin-top: 1rem;
+}
+
+.address-submit-button:hover {
+  background-color: #4a1f1f;
+  transform: translateY(-2px);
+}
+
 .close {
   position: absolute;
   right: 20px;

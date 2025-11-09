@@ -32,31 +32,79 @@ async function getRazorpayKey() {
   }
 }
 
+let currentProductId = null;
+
+function showAddressModal(productId) {
+  currentProductId = productId;
+  const modal = document.getElementById('addressModal');
+  modal.style.display = 'block';
+  
+  if (currentUser) {
+    document.getElementById('shippingName').value = currentUser.name;
+    document.getElementById('shippingEmail').value = currentUser.email;
+  }
+}
+
+function closeAddressModal() {
+  document.getElementById('addressModal').style.display = 'none';
+  document.getElementById('addressForm').reset();
+  currentProductId = null;
+}
+
+async function submitAddress(event) {
+  event.preventDefault();
+  
+  const shippingAddress = {
+    name: document.getElementById('shippingName').value,
+    email: document.getElementById('shippingEmail').value,
+    phone: document.getElementById('shippingPhone').value,
+    address: document.getElementById('shippingAddress').value,
+    city: document.getElementById('shippingCity').value,
+    state: document.getElementById('shippingState').value,
+    zip: document.getElementById('shippingZip').value,
+    country: document.getElementById('shippingCountry').value
+  };
+
+  closeAddressModal();
+  await processPurchase(currentProductId, shippingAddress);
+}
+
 async function buyProduct(productId) {
   if (!razorpayKeyId) {
     alert('Payment system is loading. Please try again in a moment.');
     return;
   }
 
+  showAddressModal(productId);
+}
+
+async function processPurchase(productId, shippingAddress) {
   try {
     const orderResponse = await fetch('/api/create-order', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ productId })
+      body: JSON.stringify({ productId, shippingAddress })
     });
 
     if (!orderResponse.ok) {
-      throw new Error('Failed to create order');
+      const errorData = await orderResponse.json();
+      throw new Error(errorData.error || 'Failed to create order');
     }
 
     const orderData = await orderResponse.json();
+    
+    const shippingFeeDisplay = orderData.shippingFee > 0 
+      ? `\nShipping Fee: ₹${(orderData.shippingFee / 100).toFixed(0)}`
+      : '\nShipping: Free for International Orders';
+    
+    const description = `Product: ₹${(orderData.productPrice / 100).toFixed(0)}${shippingFeeDisplay}\nTotal: ₹${(orderData.amount / 100).toFixed(0)}`;
 
     const options = {
       key: razorpayKeyId,
       amount: orderData.amount,
       currency: 'INR',
       name: 'GulMehak',
-      description: 'Product Purchase',
+      description: description,
       image: '/epsit.jpeg',
       order_id: orderData.orderId,
       handler: async function (response) {
@@ -74,7 +122,10 @@ async function buyProduct(productId) {
           const verifyData = await verifyResponse.json();
 
           if (verifyResponse.ok && verifyData.success) {
-            alert('Payment successful! Thank you for your purchase.\n\nOrder ID: ' + response.razorpay_order_id + '\nPayment ID: ' + response.razorpay_payment_id);
+            alert('Payment successful! Thank you for your purchase.\n\nYour order will be shipped to:\n' + 
+                  shippingAddress.address + ', ' + shippingAddress.city + ', ' + shippingAddress.state + 
+                  '\n\nOrder ID: ' + response.razorpay_order_id + 
+                  '\nPayment ID: ' + response.razorpay_payment_id);
           } else {
             alert('Payment verification failed. Please contact support with your payment ID: ' + response.razorpay_payment_id);
           }
@@ -84,18 +135,24 @@ async function buyProduct(productId) {
         }
       },
       prefill: {
-        name: currentUser ? currentUser.name : '',
-        email: currentUser ? currentUser.email : ''
+        name: shippingAddress.name,
+        email: currentUser ? currentUser.email : '',
+        contact: shippingAddress.phone
       },
       theme: {
         color: '#6b2d2d'
+      },
+      modal: {
+        ondismiss: function() {
+          console.log('Payment cancelled by user');
+        }
       }
     };
 
     const rzp = new Razorpay(options);
     rzp.open();
   } catch (error) {
-    alert('Failed to initiate payment. Please try again.');
+    alert('Failed to initiate payment: ' + error.message);
     console.error('Payment initiation error:', error);
   }
 }

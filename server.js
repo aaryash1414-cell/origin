@@ -22,15 +22,17 @@ if (process.env.RAZORPAY_KEY_ID && process.env.RAZORPAY_KEY_SECRET) {
 }
 
 const PRODUCTS = {
-  'kashmiri-coat': { name: 'Kashmiri Coat', price: 449900 },
-  'banarasi-suit': { name: 'Banarasi Suit', price: 529900 },
-  'banarasi-sari': { name: 'Banarasi Sari', price: 579900 },
-  'pashmina-shawl': { name: 'Pashmina Shawl', price: 639900 },
-  'kota-doria-sari': { name: 'Kota Doria Sari', price: 419900 },
-  'kashmiri-sari': { name: 'Kashmiri Sari', price: 559900 },
-  'kashmiri-suit': { name: 'Kashmiri Suit', price: 489900 },
-  'shawl': { name: 'Shawl', price: 599900 }
+  'kashmiri-coat': { name: 'Kashmiri Coat', price: 300000 },
+  'banarasi-suit': { name: 'Banarasi Suit', price: 250000 },
+  'banarasi-sari': { name: 'Banarasi Sari', price: 300000 },
+  'pashmina-shawl': { name: 'Pashmina Shawl', price: 500000 },
+  'kota-doria-sari': { name: 'Kota Doria Sari', price: 210000 },
+  'kashmiri-sari': { name: 'Kashmiri Sari', price: 1100000 },
+  'kashmiri-suit': { name: 'Kashmiri Suit', price: 350000 },
+  'shawl': { name: 'Shawl', price: 450000 }
 };
+
+const SHIPPING_FEE_INDIA = 10000;
 
 const pendingOrders = new Map();
 
@@ -190,22 +192,31 @@ app.post('/api/create-order', async (req, res) => {
     return res.status(503).json({ error: 'Payment system not configured' });
   }
 
-  const { productId } = req.body;
+  const { productId, shippingAddress } = req.body;
 
   if (!productId || !PRODUCTS[productId]) {
     return res.status(400).json({ error: 'Invalid product' });
   }
 
+  if (!shippingAddress || !shippingAddress.name || !shippingAddress.email || 
+      !shippingAddress.address || !shippingAddress.city || !shippingAddress.state || 
+      !shippingAddress.zip || !shippingAddress.country || !shippingAddress.phone) {
+    return res.status(400).json({ error: 'Complete shipping address including email required' });
+  }
+
   const product = PRODUCTS[productId];
+  const shippingFee = shippingAddress.country.toLowerCase() === 'india' ? SHIPPING_FEE_INDIA : 0;
+  const totalAmount = product.price + shippingFee;
 
   try {
     const options = {
-      amount: product.price,
+      amount: totalAmount,
       currency: 'INR',
       receipt: 'order_' + Date.now(),
       notes: {
         productId: productId,
-        productName: product.name
+        productName: product.name,
+        shippingCountry: shippingAddress.country
       }
     };
 
@@ -214,13 +225,21 @@ app.post('/api/create-order', async (req, res) => {
     pendingOrders.set(order.id, {
       productId,
       productName: product.name,
-      amount: product.price,
+      productPrice: product.price,
+      shippingFee,
+      amount: totalAmount,
+      shippingAddress,
       userId: req.session.userId || 'guest',
       userEmail: req.session.userEmail || 'unknown',
       createdAt: new Date().toISOString()
     });
 
-    res.json({ orderId: order.id, amount: order.amount });
+    res.json({ 
+      orderId: order.id, 
+      amount: order.amount,
+      productPrice: product.price,
+      shippingFee: shippingFee
+    });
   } catch (error) {
     console.error('Error creating Razorpay order:', error);
     res.status(500).json({ error: 'Failed to create order' });
@@ -252,7 +271,10 @@ app.post('/api/verify-payment', (req, res) => {
       paymentId: razorpay_payment_id,
       productId: pendingOrder.productId,
       productName: pendingOrder.productName,
+      productPrice: pendingOrder.productPrice,
+      shippingFee: pendingOrder.shippingFee,
       amount: pendingOrder.amount,
+      shippingAddress: pendingOrder.shippingAddress,
       userId: pendingOrder.userId,
       userEmail: pendingOrder.userEmail,
       status: 'paid',

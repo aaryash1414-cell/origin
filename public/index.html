@@ -44,7 +44,7 @@
             <div class="featured-info">
               <h3>Pashmina Shawl</h3>
               <p class="featured-description">Luxurious handwoven Pashmina shawl, featuring intricate embroidery and timeless elegance. Perfect for any occasion.</p>
-              <p class="featured-price">₹6,399</p>
+              <p class="featured-price">₹5,000</p>
               <button class="featured-buy-button">View Details</button>
             </div>
           </div>
@@ -56,7 +56,7 @@
             <div class="featured-info">
               <h3>Banarasi Sari</h3>
               <p class="featured-description">Exquisite Banarasi silk sari with traditional brocade work. A masterpiece of Indian craftsmanship and heritage.</p>
-              <p class="featured-price">₹5,799</p>
+              <p class="featured-price">₹3,000</p>
               <button class="featured-buy-button">View Details</button>
             </div>
           </div>
@@ -68,7 +68,7 @@
             <div class="featured-info">
               <h3>Kashmiri Suit</h3>
               <p class="featured-description">Elegant Kashmiri suit with delicate embroidery and premium fabric. Comfort meets sophistication in this piece.</p>
-              <p class="featured-price">₹4,899</p>
+              <p class="featured-price">₹3,500</p>
               <button class="featured-buy-button">View Details</button>
             </div>
           </div>
@@ -122,49 +122,49 @@
         <div class="product-card" onclick="buyProduct('kashmiri-coat')">
           <img src="kashmiri-coat.jpeg" alt="Kashmiri Coat">
           <h3>KASHMIRI COAT</h3>
-          <p class="price">₹4,499</p>
+          <p class="price">₹3,000</p>
           <button class="buy-button">BUY NOW</button>
         </div>
         <div class="product-card" onclick="buyProduct('banarasi-suit')">
           <img src="banarasi-suit.jpeg" alt="Banarasi Suit">
           <h3>BANARASI SUIT</h3>
-          <p class="price">₹5,299</p>
+          <p class="price">₹2,500</p>
           <button class="buy-button">BUY NOW</button>
         </div>
         <div class="product-card" onclick="buyProduct('banarasi-sari')">
           <img src="banarasi-sari.jpeg" alt="Banarasi Sari">
           <h3>BANARASI SARI</h3>
-          <p class="price">₹5,799</p>
+          <p class="price">₹3,000</p>
           <button class="buy-button">BUY NOW</button>
         </div>
         <div class="product-card" onclick="buyProduct('pashmina-shawl')">
           <img src="pashmina-shawl.jpeg" alt="Pashmina Shawl">
           <h3>PASHMINA SHAWL</h3>
-          <p class="price">₹6,399</p>
+          <p class="price">₹5,000</p>
           <button class="buy-button">BUY NOW</button>
         </div>
         <div class="product-card" onclick="buyProduct('kota-doria-sari')">
           <img src="kota-doria-sari.jpeg" alt="Kota Doria Sari">
           <h3>KOTA DORIA SARI</h3>
-          <p class="price">₹4,199</p>
+          <p class="price">₹2,100</p>
           <button class="buy-button">BUY NOW</button>
         </div>
         <div class="product-card" onclick="buyProduct('kashmiri-sari')">
           <img src="kashmiri-sari.jpeg" alt="Kashmiri Sari">
           <h3>KASHMIRI SARI</h3>
-          <p class="price">₹5,599</p>
+          <p class="price">₹11,000</p>
           <button class="buy-button">BUY NOW</button>
         </div>
         <div class="product-card" onclick="buyProduct('kashmiri-suit')">
           <img src="kashmiri-suit.jpeg" alt="Kashmiri Suit">
           <h3>KASHMIRI SUIT</h3>
-          <p class="price">₹4,899</p>
+          <p class="price">₹3,500</p>
           <button class="buy-button">BUY NOW</button>
         </div>
         <div class="product-card" onclick="buyProduct('shawl')">
           <img src="shawl.jpeg" alt="Shawl">
           <h3>SHAWL</h3>
-          <p class="price">₹5,999</p>
+          <p class="price">₹4,500</p>
           <button class="buy-button">BUY NOW</button>
         </div>
       </div>
@@ -206,6 +206,42 @@
         <p>Email: <strong id="userEmail"></strong></p>
         <button onclick="handleLogout()" class="auth-button logout-button">Logout</button>
       </div>
+    </div>
+  </div>
+
+  <div id="addressModal" class="modal">
+    <div class="modal-content address-modal-content">
+      <span class="close" onclick="closeAddressModal()">&times;</span>
+      <h2>Shipping Address</h2>
+      <p class="shipping-note">We ship worldwide! Shipping fee for India: ₹100 | International: Free</p>
+      <p class="payment-note">Payment method: Online payment only (No cash on delivery)</p>
+      <form id="addressForm" onsubmit="submitAddress(event)">
+        <div class="form-row">
+          <input type="text" id="shippingName" placeholder="Full Name *" required>
+          <input type="email" id="shippingEmail" placeholder="Email Address *" required>
+        </div>
+        <input type="tel" id="shippingPhone" placeholder="Phone Number *" required style="margin-bottom: 1rem;">
+        <textarea id="shippingAddress" placeholder="Street Address *" rows="3" required></textarea>
+        <div class="form-row">
+          <input type="text" id="shippingCity" placeholder="City *" required>
+          <input type="text" id="shippingState" placeholder="State/Province *" required>
+        </div>
+        <div class="form-row">
+          <input type="text" id="shippingZip" placeholder="ZIP/Postal Code *" required>
+          <select id="shippingCountry" required>
+            <option value="">Select Country *</option>
+            <option value="India">India</option>
+            <option value="USA">United States</option>
+            <option value="UK">United Kingdom</option>
+            <option value="Canada">Canada</option>
+            <option value="Australia">Australia</option>
+            <option value="UAE">United Arab Emirates</option>
+            <option value="Singapore">Singapore</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+        <button type="submit" class="address-submit-button">Continue to Payment</button>
+      </form>
     </div>
   </div>
 
