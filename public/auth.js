@@ -34,7 +34,7 @@ async function buyProduct(productId) {
       key: razorpayKeyId,
       amount: orderData.amount,
       currency: 'INR',
-      name: 'GulMehak by Epsit Dhar',
+      name: 'GulMehak',
       description: 'Product Purchase',
       image: '/hero-image.jpg',
       order_id: orderData.orderId,
