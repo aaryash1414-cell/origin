@@ -106,6 +106,148 @@ h1, h2, h3 {
   color: white;
 }
 
+#featured {
+  padding: 5rem 2rem;
+  background-color: #ffffff;
+}
+
+.featured-container {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.featured-title {
+  text-align: center;
+  font-size: 3rem;
+  color: #6b2d2d;
+  margin-bottom: 0.5rem;
+  font-weight: 400;
+}
+
+.featured-subtitle {
+  text-align: center;
+  font-size: 1rem;
+  color: #666;
+  margin-bottom: 3rem;
+  letter-spacing: 1px;
+}
+
+.featured-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2.5rem;
+  margin-bottom: 3rem;
+}
+
+.featured-card {
+  background-color: #f5ebe0;
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.3s, box-shadow 0.3s;
+  border-radius: 8px;
+}
+
+.featured-card:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+}
+
+.featured-image {
+  width: 100%;
+  height: 350px;
+  overflow: hidden;
+}
+
+.featured-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s;
+}
+
+.featured-card:hover .featured-image img {
+  transform: scale(1.08);
+}
+
+.featured-info {
+  padding: 2rem 1.5rem;
+}
+
+.featured-info h3 {
+  font-size: 1.5rem;
+  color: #6b2d2d;
+  margin-bottom: 1rem;
+  font-weight: 500;
+}
+
+.featured-description {
+  font-size: 0.9rem;
+  color: #555;
+  line-height: 1.6;
+  margin-bottom: 1.5rem;
+}
+
+.featured-price {
+  font-size: 1.4rem;
+  color: #6b2d2d;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+}
+
+.featured-buy-button {
+  width: 100%;
+  padding: 0.9rem 1.5rem;
+  background-color: #6b2d2d;
+  color: white;
+  border: none;
+  font-size: 0.85rem;
+  font-weight: 500;
+  letter-spacing: 1.5px;
+  cursor: pointer;
+  transition: all 0.3s;
+  text-transform: uppercase;
+}
+
+.featured-buy-button:hover {
+  background-color: #4a1f1f;
+}
+
+.view-all-button {
+  display: block;
+  margin: 0 auto;
+  padding: 1rem 3rem;
+  background-color: transparent;
+  color: #6b2d2d;
+  border: 2px solid #6b2d2d;
+  font-size: 0.9rem;
+  font-weight: 500;
+  letter-spacing: 2px;
+  cursor: pointer;
+  transition: all 0.3s;
+  text-transform: uppercase;
+}
+
+.view-all-button:hover {
+  background-color: #6b2d2d;
+  color: white;
+}
+
+@media (max-width: 1024px) {
+  .featured-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .featured-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .featured-title {
+    font-size: 2rem;
+  }
+}
+
 #products {
   padding: 3rem 2rem 5rem;
   max-width: 1400px;
