@@ -1,6 +1,27 @@
 let currentUser = null;
 let razorpayKeyId = null;
 
+function showMainView() {
+  document.getElementById('mainView').style.display = 'block';
+  document.getElementById('productsView').style.display = 'none';
+  window.scrollTo(0, 0);
+}
+
+function showProductsView() {
+  document.getElementById('mainView').style.display = 'none';
+  document.getElementById('productsView').style.display = 'block';
+  window.scrollTo(0, 0);
+}
+
+function scrollToSection(sectionId) {
+  setTimeout(() => {
+    const section = document.getElementById(sectionId);
+    if (section) {
+      section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }, 100);
+}
+
 async function getRazorpayKey() {
   try {
     const response = await fetch('/api/razorpay-key');
@@ -36,7 +57,7 @@ async function buyProduct(productId) {
       currency: 'INR',
       name: 'GulMehak',
       description: 'Product Purchase',
-      image: '/hero-image.jpg',
+      image: '/epsit.jpeg',
       order_id: orderData.orderId,
       handler: async function (response) {
         try {

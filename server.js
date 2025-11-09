@@ -13,10 +13,13 @@ const USERS_FILE = path.join(__dirname, 'data', 'users.json');
 const ORDERS_FILE = path.join(__dirname, 'data', 'orders.json');
 const SESSION_SECRET = process.env.SESSION_SECRET || 'poshaak-session-secret-' + Date.now();
 
-const razorpay = new Razorpay({
-  key_id: process.env.RAZORPAY_KEY_ID,
-  key_secret: process.env.RAZORPAY_KEY_SECRET
-});
+let razorpay = null;
+if (process.env.RAZORPAY_KEY_ID && process.env.RAZORPAY_KEY_SECRET) {
+  razorpay = new Razorpay({
+    key_id: process.env.RAZORPAY_KEY_ID,
+    key_secret: process.env.RAZORPAY_KEY_SECRET
+  });
+}
 
 const PRODUCTS = {
   'kashmiri-coat': { name: 'Kashmiri Coat', price: 449900 },
@@ -25,7 +28,8 @@ const PRODUCTS = {
   'pashmina-shawl': { name: 'Pashmina Shawl', price: 639900 },
   'kota-doria-sari': { name: 'Kota Doria Sari', price: 419900 },
   'kashmiri-sari': { name: 'Kashmiri Sari', price: 559900 },
-  'kashmiri-suit': { name: 'Kashmiri Suit', price: 489900 }
+  'kashmiri-suit': { name: 'Kashmiri Suit', price: 489900 },
+  'shawl': { name: 'Shawl', price: 599900 }
 };
 
 const pendingOrders = new Map();
@@ -175,10 +179,17 @@ app.get('/api/check-auth', (req, res) => {
 });
 
 app.get('/api/razorpay-key', (req, res) => {
+  if (!razorpay) {
+    return res.status(503).json({ error: 'Payment system not configured' });
+  }
   res.json({ key: process.env.RAZORPAY_KEY_ID });
 });
 
 app.post('/api/create-order', async (req, res) => {
+  if (!razorpay) {
+    return res.status(503).json({ error: 'Payment system not configured' });
+  }
+
   const { productId } = req.body;
 
   if (!productId || !PRODUCTS[productId]) {
