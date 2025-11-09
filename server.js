@@ -4,11 +4,31 @@ const bcrypt = require('bcryptjs');
 const bodyParser = require('body-parser');
 const fs = require('fs');
 const path = require('path');
+const Razorpay = require('razorpay');
+const crypto = require('crypto');
 
 const app = express();
 const PORT = 5000;
 const USERS_FILE = path.join(__dirname, 'data', 'users.json');
+const ORDERS_FILE = path.join(__dirname, 'data', 'orders.json');
 const SESSION_SECRET = process.env.SESSION_SECRET || 'poshaak-session-secret-' + Date.now();
+
+const razorpay = new Razorpay({
+  key_id: process.env.RAZORPAY_KEY_ID,
+  key_secret: process.env.RAZORPAY_KEY_SECRET
+});
+
+const PRODUCTS = {
+  'kashmiri-coat': { name: 'Kashmiri Coat', price: 449900 },
+  'banarasi-suit': { name: 'Banarasi Suit', price: 529900 },
+  'banarasi-sari': { name: 'Banarasi Sari', price: 579900 },
+  'pashmina-shawl': { name: 'Pashmina Shawl', price: 639900 },
+  'kota-doria-sari': { name: 'Kota Doria Sari', price: 419900 },
+  'kashmiri-sari': { name: 'Kashmiri Sari', price: 559900 },
+  'kashmiri-suit': { name: 'Kashmiri Suit', price: 489900 }
+};
+
+const pendingOrders = new Map();
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -42,6 +62,26 @@ function writeUsers(users) {
     fs.writeFileSync(USERS_FILE, JSON.stringify(users, null, 2));
   } catch (error) {
     console.error('Error writing users file:', error);
+  }
+}
+
+function readOrders() {
+  try {
+    if (fs.existsSync(ORDERS_FILE)) {
+      const data = fs.readFileSync(ORDERS_FILE, 'utf8');
+      return JSON.parse(data);
+    }
+  } catch (error) {
+    console.error('Error reading orders file:', error);
+  }
+  return [];
+}
+
+function writeOrders(orders) {
+  try {
+    fs.writeFileSync(ORDERS_FILE, JSON.stringify(orders, null, 2));
+  } catch (error) {
+    console.error('Error writing orders file:', error);
   }
 }
 
@@ -134,6 +174,91 @@ app.get('/api/check-auth', (req, res) => {
   }
 });
 
+app.get('/api/razorpay-key', (req, res) => {
+  res.json({ key: process.env.RAZORPAY_KEY_ID });
+});
+
+app.post('/api/create-order', async (req, res) => {
+  const { productId } = req.body;
+
+  if (!productId || !PRODUCTS[productId]) {
+    return res.status(400).json({ error: 'Invalid product' });
+  }
+
+  const product = PRODUCTS[productId];
+
+  try {
+    const options = {
+      amount: product.price,
+      currency: 'INR',
+      receipt: 'order_' + Date.now(),
+      notes: {
+        productId: productId,
+        productName: product.name
+      }
+    };
+
+    const order = await razorpay.orders.create(options);
+    
+    pendingOrders.set(order.id, {
+      productId,
+      productName: product.name,
+      amount: product.price,
+      userId: req.session.userId || 'guest',
+      userEmail: req.session.userEmail || 'unknown',
+      createdAt: new Date().toISOString()
+    });
+
+    res.json({ orderId: order.id, amount: order.amount });
+  } catch (error) {
+    console.error('Error creating Razorpay order:', error);
+    res.status(500).json({ error: 'Failed to create order' });
+  }
+});
+
+app.post('/api/verify-payment', (req, res) => {
+  const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
+
+  if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
+    return res.status(400).json({ error: 'Missing payment verification details' });
+  }
+
+  const pendingOrder = pendingOrders.get(razorpay_order_id);
+  if (!pendingOrder) {
+    return res.status(400).json({ error: 'Order not found or already processed' });
+  }
+
+  const body = razorpay_order_id + '|' + razorpay_payment_id;
+  const expectedSignature = crypto
+    .createHmac('sha256', process.env.RAZORPAY_KEY_SECRET)
+    .update(body.toString())
+    .digest('hex');
+
+  if (expectedSignature === razorpay_signature) {
+    const orders = readOrders();
+    const newOrder = {
+      orderId: razorpay_order_id,
+      paymentId: razorpay_payment_id,
+      productId: pendingOrder.productId,
+      productName: pendingOrder.productName,
+      amount: pendingOrder.amount,
+      userId: pendingOrder.userId,
+      userEmail: pendingOrder.userEmail,
+      status: 'paid',
+      createdAt: pendingOrder.createdAt,
+      paidAt: new Date().toISOString()
+    };
+    orders.push(newOrder);
+    writeOrders(orders);
+
+    pendingOrders.delete(razorpay_order_id);
+
+    res.json({ success: true, message: 'Payment verified successfully' });
+  } else {
+    res.status(400).json({ error: 'Invalid payment signature' });
+  }
+});
+
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`Server running on http://0.0.0.0:${PORT}`);
   
@@ -144,5 +269,9 @@ app.listen(PORT, '0.0.0.0', () => {
   
   if (!fs.existsSync(USERS_FILE)) {
     writeUsers([]);
+  }
+  
+  if (!fs.existsSync(ORDERS_FILE)) {
+    writeOrders([]);
   }
 });

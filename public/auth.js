@@ -1,6 +1,86 @@
 let currentUser = null;
+let razorpayKeyId = null;
+
+async function getRazorpayKey() {
+  try {
+    const response = await fetch('/api/razorpay-key');
+    const data = await response.json();
+    razorpayKeyId = data.key;
+  } catch (error) {
+    console.error('Failed to get Razorpay key:', error);
+  }
+}
+
+async function buyProduct(productId) {
+  if (!razorpayKeyId) {
+    alert('Payment system is loading. Please try again in a moment.');
+    return;
+  }
+
+  try {
+    const orderResponse = await fetch('/api/create-order', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ productId })
+    });
+
+    if (!orderResponse.ok) {
+      throw new Error('Failed to create order');
+    }
+
+    const orderData = await orderResponse.json();
+
+    const options = {
+      key: razorpayKeyId,
+      amount: orderData.amount,
+      currency: 'INR',
+      name: 'GulMehak by Epsit Dhar',
+      description: 'Product Purchase',
+      image: '/hero-image.jpg',
+      order_id: orderData.orderId,
+      handler: async function (response) {
+        try {
+          const verifyResponse = await fetch('/api/verify-payment', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature
+            })
+          });
+
+          const verifyData = await verifyResponse.json();
+
+          if (verifyResponse.ok && verifyData.success) {
+            alert('Payment successful! Thank you for your purchase.\n\nOrder ID: ' + response.razorpay_order_id + '\nPayment ID: ' + response.razorpay_payment_id);
+          } else {
+            alert('Payment verification failed. Please contact support with your payment ID: ' + response.razorpay_payment_id);
+          }
+        } catch (error) {
+          alert('Payment verification error. Please contact support.');
+          console.error('Verification error:', error);
+        }
+      },
+      prefill: {
+        name: currentUser ? currentUser.name : '',
+        email: currentUser ? currentUser.email : ''
+      },
+      theme: {
+        color: '#6b2d2d'
+      }
+    };
+
+    const rzp = new Razorpay(options);
+    rzp.open();
+  } catch (error) {
+    alert('Failed to initiate payment. Please try again.');
+    console.error('Payment initiation error:', error);
+  }
+}
 
 document.addEventListener('DOMContentLoaded', () => {
+  getRazorpayKey();
   checkAuthStatus();
   
   const modal = document.getElementById('authModal');

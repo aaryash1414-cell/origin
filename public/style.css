@@ -140,6 +140,37 @@ h1, h2, h3 {
   font-weight: 500;
   letter-spacing: 2px;
   font-family: 'Montserrat', sans-serif;
+  margin-bottom: 0.5rem;
+}
+
+.product-card .price {
+  text-align: center;
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: #6b2d2d;
+  margin-bottom: 1rem;
+}
+
+.buy-button {
+  display: block;
+  width: 80%;
+  margin: 0 auto;
+  padding: 0.8rem 1.5rem;
+  background-color: #6b2d2d;
+  color: white;
+  border: none;
+  font-size: 0.8rem;
+  font-weight: 500;
+  letter-spacing: 1.5px;
+  cursor: pointer;
+  transition: all 0.3s;
+  text-transform: uppercase;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.buy-button:hover {
+  background-color: #4a1f1f;
+  transform: translateY(-2px);
 }
 
 #about {

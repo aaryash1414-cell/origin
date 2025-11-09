@@ -3,16 +3,17 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Poshaak by Epsit</title>
+  <title>GulMehak by Epsit Dhar</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&family=Montserrat:wght@300;400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 </head>
 <body>
   <nav id="navbar">
     <div class="nav-container">
-      <div class="nav-logo">POSHAAK BY EPSIT</div>
+      <div class="nav-logo">GULMEHAK BY EPSIT</div>
       <div class="nav-links" id="navLinks">
         <a href="#hero">Home</a>
         <a href="#products">Shop</a>
@@ -31,33 +32,47 @@
 
   <section id="products">
     <div class="products-grid">
-      <div class="product-card">
-        <img src="https://via.placeholder.com/300x400/8B4545/FFFFFF?text=KASHMIRI+SARIS" alt="Kashmiri Saris">
-        <h3>KASHMIRI SARIS</h3>
+      <div class="product-card" onclick="buyProduct('kashmiri-coat')">
+        <img src="products.jpg" alt="Kashmiri Coat" style="object-position: 0% 0%;">
+        <h3>KASHMIRI COAT</h3>
+        <p class="price">₹4,499</p>
+        <button class="buy-button">BUY NOW</button>
       </div>
-      <div class="product-card">
-        <img src="https://via.placeholder.com/300x400/8B4545/FFFFFF?text=BANARASI+SARIS" alt="Banarasi Saris">
-        <h3>BANARASI SARIS</h3>
+      <div class="product-card" onclick="buyProduct('banarasi-suit')">
+        <img src="products.jpg" alt="Banarasi Suit" style="object-position: 33% 0%;">
+        <h3>BANARASI SUIT</h3>
+        <p class="price">₹5,299</p>
+        <button class="buy-button">BUY NOW</button>
       </div>
-      <div class="product-card">
-        <img src="https://via.placeholder.com/300x400/8B4545/FFFFFF?text=KASHMIRI+SUITS" alt="Kashmiri Suits">
-        <h3>KASHMIRI SUITS</h3>
+      <div class="product-card" onclick="buyProduct('banarasi-sari')">
+        <img src="products.jpg" alt="Banarasi Sari" style="object-position: 66% 0%;">
+        <h3>BANARASI SARI</h3>
+        <p class="price">₹5,799</p>
+        <button class="buy-button">BUY NOW</button>
       </div>
-      <div class="product-card">
-        <img src="https://via.placeholder.com/300x400/8B4545/FFFFFF?text=BANARASI+SUITS" alt="Banarasi Suits">
-        <h3>BANARASI SUITS</h3>
+      <div class="product-card" onclick="buyProduct('pashmina-shawl')">
+        <img src="products.jpg" alt="Pashmina Shawl" style="object-position: 0% 33%;">
+        <h3>PASHMINA SHAWL</h3>
+        <p class="price">₹6,399</p>
+        <button class="buy-button">BUY NOW</button>
       </div>
-      <div class="product-card">
-        <img src="https://via.placeholder.com/300x400/8B4545/FFFFFF?text=SHAWLS" alt="Shawls">
-        <h3>SHAWLS</h3>
+      <div class="product-card" onclick="buyProduct('kota-doria-sari')">
+        <img src="products.jpg" alt="Kota Doria Sari" style="object-position: 50% 50%;">
+        <h3>KOTA DORIA SARI</h3>
+        <p class="price">₹4,199</p>
+        <button class="buy-button">BUY NOW</button>
       </div>
-      <div class="product-card">
-        <img src="https://via.placeholder.com/300x400/8B4545/FFFFFF?text=PASHMINA+SHAWLS" alt="Pashmina Shawls">
-        <h3>PASHMINA SHAWLS</h3>
+      <div class="product-card" onclick="buyProduct('kashmiri-sari')">
+        <img src="products.jpg" alt="Kashmiri Sari" style="object-position: 66% 33%;">
+        <h3>KASHMIRI SARI</h3>
+        <p class="price">₹5,599</p>
+        <button class="buy-button">BUY NOW</button>
       </div>
-      <div class="product-card product-card-large">
-        <img src="https://via.placeholder.com/600x400/8B4545/FFFFFF?text=KOTA+DORIA+SAREES" alt="Kota Doria Sarees">
-        <h3>KOTA DORIA SAREES</h3>
+      <div class="product-card product-card-large" onclick="buyProduct('kashmiri-suit')">
+        <img src="products.jpg" alt="Kashmiri Suit" style="object-position: 0% 66%;">
+        <h3>KASHMIRI SUIT</h3>
+        <p class="price">₹4,899</p>
+        <button class="buy-button">BUY NOW</button>
       </div>
     </div>
   </section>
@@ -69,7 +84,7 @@
         <p>I'm Epsit Dhar Shukla — influencer,<br>
         army wife, and lover of India's rich fabrics.<br>
         Every sarl and suit tells a story.<br>
-        Welcome to Poshaak By Epsit,<br>
+        Welcome to GulMehak By Epsit,<br>
         where heritage meets elegance.</p>
         <button class="read-more-button">READ MORE</button>
       </div>
@@ -86,7 +101,7 @@
           <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM12 7C13.93 7 15.5 8.57 15.5 10.5C15.5 12.43 13.93 14 12 14C10.07 14 8.5 12.43 8.5 10.5C8.5 8.57 10.07 7 12 7ZM12 20C9.97 20 8.1 19.25 6.67 18.04C7.45 16.77 9.58 16 12 16C14.42 16 16.55 16.77 17.33 18.04C15.9 19.25 14.03 20 12 20Z" fill="white"/>
         </svg>
       </div>
-      <div class="footer-brand">POSHAAK BY EPSIT</div>
+      <div class="footer-brand">GULMEHAK BY EPSIT</div>
     </div>
   </footer>
 
