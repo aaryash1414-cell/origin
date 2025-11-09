@@ -1,0 +1,1 @@
+User requested full responsive Pico.css website for GulMehak online store with Razorpay integration placeholders and image placeholders for later upload.
