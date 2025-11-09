@@ -10,7 +10,7 @@ const { sendGmailEmail } = require('./utils/gmailClient');
 const { createOrderConfirmationEmail } = require('./utils/emailTemplates');
 
 const app = express();
-const PORT = 5000;
+const PORT = process.env.PORT || 5000;
 const USERS_FILE = path.join(__dirname, 'data', 'users.json');
 const ORDERS_FILE = path.join(__dirname, 'data', 'orders.json');
 const SESSION_SECRET = process.env.SESSION_SECRET || 'poshaak-session-secret-' + Date.now();
