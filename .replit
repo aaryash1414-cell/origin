@@ -60,3 +60,4 @@ externalPort = 3000
 
 [agent]
 expertMode = true
+integrations = ["replitmail:1.0.0"]

@@ -33,7 +33,12 @@ GulMehak is an e-commerce website specializing in traditional Indian luxury garm
 - Logo to be used in automated emails when implemented
 
 ## Recent Changes
-- November 09, 2025: Logo added for future email automation features
+- November 09, 2025: 
+  - Logo added for email automation
+  - Integrated Replit Mail for automated order confirmations
+  - Email utility created with order confirmation templates
+  - Customers now receive automatic emails after successful payment
+  - Shipping fee confirmed as ₹100 for India
 
 ## User Preferences
 - None specified yet

@@ -6,6 +6,8 @@ const fs = require('fs');
 const path = require('path');
 const Razorpay = require('razorpay');
 const crypto = require('crypto');
+const { sendEmail } = require('./utils/replitmail');
+const { createOrderConfirmationEmail } = require('./utils/emailTemplates');
 
 const app = express();
 const PORT = 5000;
@@ -246,7 +248,7 @@ app.post('/api/create-order', async (req, res) => {
   }
 });
 
-app.post('/api/verify-payment', (req, res) => {
+app.post('/api/verify-payment', async (req, res) => {
   const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
 
   if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
@@ -285,6 +287,31 @@ app.post('/api/verify-payment', (req, res) => {
     writeOrders(orders);
 
     pendingOrders.delete(razorpay_order_id);
+
+    // Send order confirmation email
+    try {
+      const { htmlContent, textContent } = createOrderConfirmationEmail({
+        customerName: pendingOrder.shippingAddress.name,
+        productName: pendingOrder.productName,
+        productPrice: pendingOrder.productPrice,
+        shippingFee: pendingOrder.shippingFee,
+        totalAmount: pendingOrder.amount,
+        orderId: razorpay_order_id,
+        shippingAddress: pendingOrder.shippingAddress
+      });
+
+      await sendEmail({
+        to: pendingOrder.shippingAddress.email,
+        subject: 'Order Confirmation - GulMehak',
+        html: htmlContent,
+        text: textContent
+      });
+
+      console.log('Order confirmation email sent to:', pendingOrder.shippingAddress.email);
+    } catch (emailError) {
+      console.error('Failed to send order confirmation email:', emailError);
+      // Don't fail the payment verification if email fails
+    }
 
     res.json({ success: true, message: 'Payment verified successfully' });
   } else {
