@@ -1,4 +1,4 @@
-const { sendEmail } = require('./utils/replitmail');
+const { sendGmailEmail } = require('./utils/gmailClient');
 const fs = require('fs');
 const path = require('path');
 
@@ -174,7 +174,7 @@ Thank you for choosing GulMehak!
   try {
     console.log('Sending example order confirmation email...');
     
-    const result = await sendEmail({
+    const result = await sendGmailEmail({
       to: recipientEmail,
       subject: 'Example Order Confirmation - GulMehak',
       html: htmlContent,

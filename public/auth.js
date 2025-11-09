@@ -33,6 +33,41 @@ async function getRazorpayKey() {
 }
 
 let currentProductId = null;
+let currentAddressMode = 'structured';
+
+function switchAddressMode(mode) {
+  currentAddressMode = mode;
+  const structuredFields = document.getElementById('structuredAddressFields');
+  const manualFields = document.getElementById('manualAddressFields');
+  const structuredBtn = document.getElementById('structuredModeBtn');
+  const manualBtn = document.getElementById('manualModeBtn');
+  
+  if (mode === 'structured') {
+    structuredFields.style.display = 'block';
+    manualFields.style.display = 'none';
+    structuredBtn.classList.add('active');
+    manualBtn.classList.remove('active');
+  } else {
+    structuredFields.style.display = 'none';
+    manualFields.style.display = 'block';
+    structuredBtn.classList.remove('active');
+    manualBtn.classList.add('active');
+  }
+}
+
+function handleCountryChange() {
+  const countrySelect = document.getElementById('shippingCountry');
+  const manualInput = document.getElementById('manualCountryInput');
+  
+  if (countrySelect.value === 'Other') {
+    manualInput.style.display = 'block';
+    document.getElementById('manualCountry').required = true;
+  } else {
+    manualInput.style.display = 'none';
+    document.getElementById('manualCountry').required = false;
+    document.getElementById('manualCountry').value = '';
+  }
+}
 
 function showAddressModal(productId) {
   currentProductId = productId;
@@ -42,6 +77,8 @@ function showAddressModal(productId) {
   if (currentUser) {
     document.getElementById('shippingName').value = currentUser.name;
     document.getElementById('shippingEmail').value = currentUser.email;
+    document.getElementById('manualName').value = currentUser.name;
+    document.getElementById('manualEmail').value = currentUser.email;
   }
 }
 
@@ -49,24 +86,65 @@ function closeAddressModal() {
   document.getElementById('addressModal').style.display = 'none';
   document.getElementById('addressForm').reset();
   currentProductId = null;
+  currentAddressMode = 'structured';
+  switchAddressMode('structured');
 }
 
 async function submitAddress(event) {
   event.preventDefault();
   
-  const shippingAddress = {
-    name: document.getElementById('shippingName').value,
-    email: document.getElementById('shippingEmail').value,
-    phone: document.getElementById('shippingPhone').value,
-    address: document.getElementById('shippingAddress').value,
-    city: document.getElementById('shippingCity').value,
-    state: document.getElementById('shippingState').value,
-    zip: document.getElementById('shippingZip').value,
-    country: document.getElementById('shippingCountry').value
-  };
+  const quantity = parseInt(document.getElementById('orderQuantity').value);
+  let shippingAddress;
+  
+  if (currentAddressMode === 'structured') {
+    const countrySelect = document.getElementById('shippingCountry');
+    const country = countrySelect.value === 'Other' 
+      ? document.getElementById('manualCountry').value 
+      : countrySelect.value;
+    
+    if (!document.getElementById('shippingName').value || 
+        !document.getElementById('shippingEmail').value ||
+        !document.getElementById('shippingPhone').value ||
+        !document.getElementById('shippingAddress').value ||
+        !document.getElementById('shippingCity').value ||
+        !document.getElementById('shippingState').value ||
+        !document.getElementById('shippingZip').value ||
+        !country) {
+      alert('Please fill in all required fields');
+      return;
+    }
+    
+    shippingAddress = {
+      mode: 'structured',
+      name: document.getElementById('shippingName').value,
+      email: document.getElementById('shippingEmail').value,
+      phone: document.getElementById('shippingPhone').value,
+      address: document.getElementById('shippingAddress').value,
+      city: document.getElementById('shippingCity').value,
+      state: document.getElementById('shippingState').value,
+      zip: document.getElementById('shippingZip').value,
+      country: country
+    };
+  } else {
+    if (!document.getElementById('manualName').value || 
+        !document.getElementById('manualEmail').value ||
+        !document.getElementById('manualPhone').value ||
+        !document.getElementById('manualFullAddress').value) {
+      alert('Please fill in all required fields');
+      return;
+    }
+    
+    shippingAddress = {
+      mode: 'manual',
+      name: document.getElementById('manualName').value,
+      email: document.getElementById('manualEmail').value,
+      phone: document.getElementById('manualPhone').value,
+      fullAddress: document.getElementById('manualFullAddress').value
+    };
+  }
 
   closeAddressModal();
-  await processPurchase(currentProductId, shippingAddress);
+  await processPurchase(currentProductId, shippingAddress, quantity);
 }
 
 async function buyProduct(productId) {
@@ -78,12 +156,12 @@ async function buyProduct(productId) {
   showAddressModal(productId);
 }
 
-async function processPurchase(productId, shippingAddress) {
+async function processPurchase(productId, shippingAddress, quantity) {
   try {
     const orderResponse = await fetch('/api/create-order', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ productId, shippingAddress })
+      body: JSON.stringify({ productId, shippingAddress, quantity })
     });
 
     if (!orderResponse.ok) {
@@ -97,7 +175,7 @@ async function processPurchase(productId, shippingAddress) {
       ? `\nShipping Fee: ₹${(orderData.shippingFee / 100).toFixed(0)}`
       : '\nShipping: Free for International Orders';
     
-    const description = `Product: ₹${(orderData.productPrice / 100).toFixed(0)}${shippingFeeDisplay}\nTotal: ₹${(orderData.amount / 100).toFixed(0)}`;
+    const description = `Quantity: ${orderData.quantity}\nProduct: ₹${(orderData.productPrice / 100).toFixed(0)} x ${orderData.quantity}${shippingFeeDisplay}\nTotal: ₹${(orderData.amount / 100).toFixed(0)}`;
 
     const options = {
       key: razorpayKeyId,

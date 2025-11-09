@@ -424,12 +424,44 @@ footer {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 2rem;
+}
+
+.footer-social a {
+  transition: all 0.3s;
+}
+
+.footer-social a:hover {
+  opacity: 0.8;
+  transform: translateY(-2px);
 }
 
 .footer-brand {
   font-family: 'Cormorant Garamond', serif;
   font-size: 1.3rem;
   letter-spacing: 2px;
+  flex: 1;
+  text-align: center;
+}
+
+.footer-contact a {
+  transition: all 0.3s;
+}
+
+.footer-contact a:hover {
+  opacity: 0.8;
+  text-decoration: underline;
+}
+
+@media (max-width: 768px) {
+  .footer-content {
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+  
+  .footer-brand {
+    order: -1;
+  }
 }
 
 .modal {
@@ -508,6 +540,30 @@ footer {
 #addressForm textarea {
   resize: vertical;
   margin-bottom: 1rem;
+}
+
+.mode-toggle-btn {
+  padding: 0.7rem 1.5rem;
+  border: 2px solid #6b2d2d;
+  background-color: white;
+  color: #6b2d2d;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s;
+  margin: 0 0.5rem;
+  border-radius: 5px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.mode-toggle-btn:hover {
+  background-color: #f5ebe0;
+}
+
+.mode-toggle-btn.active {
+  background-color: #6b2d2d;
+  color: white;
 }
 
 .address-submit-button {

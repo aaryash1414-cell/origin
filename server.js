@@ -6,7 +6,7 @@ const fs = require('fs');
 const path = require('path');
 const Razorpay = require('razorpay');
 const crypto = require('crypto');
-const { sendEmail } = require('./utils/replitmail');
+const { sendGmailEmail } = require('./utils/gmailClient');
 const { createOrderConfirmationEmail } = require('./utils/emailTemplates');
 
 const app = express();
@@ -194,21 +194,46 @@ app.post('/api/create-order', async (req, res) => {
     return res.status(503).json({ error: 'Payment system not configured' });
   }
 
-  const { productId, shippingAddress } = req.body;
+  const { productId, shippingAddress, quantity } = req.body;
 
   if (!productId || !PRODUCTS[productId]) {
     return res.status(400).json({ error: 'Invalid product' });
   }
 
-  if (!shippingAddress || !shippingAddress.name || !shippingAddress.email || 
-      !shippingAddress.address || !shippingAddress.city || !shippingAddress.state || 
-      !shippingAddress.zip || !shippingAddress.country || !shippingAddress.phone) {
-    return res.status(400).json({ error: 'Complete shipping address including email required' });
+  if (!shippingAddress || !shippingAddress.name || !shippingAddress.email || !shippingAddress.phone) {
+    return res.status(400).json({ error: 'Name, email and phone are required' });
+  }
+
+  // Validate based on address mode
+  if (shippingAddress.mode === 'manual') {
+    if (!shippingAddress.fullAddress) {
+      return res.status(400).json({ error: 'Complete address is required' });
+    }
+  } else {
+    if (!shippingAddress.address || !shippingAddress.city || !shippingAddress.state || 
+        !shippingAddress.zip || !shippingAddress.country) {
+      return res.status(400).json({ error: 'Complete shipping address required' });
+    }
+  }
+
+  const orderQuantity = quantity || 1;
+  if (orderQuantity < 1 || orderQuantity > 10) {
+    return res.status(400).json({ error: 'Quantity must be between 1 and 10' });
   }
 
   const product = PRODUCTS[productId];
-  const shippingFee = shippingAddress.country.toLowerCase() === 'india' ? SHIPPING_FEE_INDIA : 0;
-  const totalAmount = product.price + shippingFee;
+  
+  // Determine shipping fee based on country
+  let shippingFee = 0;
+  if (shippingAddress.mode === 'manual') {
+    // For manual addresses, check if "India" appears in the address
+    const addressLower = shippingAddress.fullAddress.toLowerCase();
+    shippingFee = addressLower.includes('india') ? SHIPPING_FEE_INDIA : 0;
+  } else {
+    shippingFee = shippingAddress.country.toLowerCase() === 'india' ? SHIPPING_FEE_INDIA : 0;
+  }
+  
+  const totalAmount = (product.price * orderQuantity) + shippingFee;
 
   try {
     const options = {
@@ -228,6 +253,7 @@ app.post('/api/create-order', async (req, res) => {
       productId,
       productName: product.name,
       productPrice: product.price,
+      quantity: orderQuantity,
       shippingFee,
       amount: totalAmount,
       shippingAddress,
@@ -240,6 +266,7 @@ app.post('/api/create-order', async (req, res) => {
       orderId: order.id, 
       amount: order.amount,
       productPrice: product.price,
+      quantity: orderQuantity,
       shippingFee: shippingFee
     });
   } catch (error) {
@@ -274,6 +301,7 @@ app.post('/api/verify-payment', async (req, res) => {
       productId: pendingOrder.productId,
       productName: pendingOrder.productName,
       productPrice: pendingOrder.productPrice,
+      quantity: pendingOrder.quantity,
       shippingFee: pendingOrder.shippingFee,
       amount: pendingOrder.amount,
       shippingAddress: pendingOrder.shippingAddress,
@@ -294,13 +322,14 @@ app.post('/api/verify-payment', async (req, res) => {
         customerName: pendingOrder.shippingAddress.name,
         productName: pendingOrder.productName,
         productPrice: pendingOrder.productPrice,
+        quantity: pendingOrder.quantity,
         shippingFee: pendingOrder.shippingFee,
         totalAmount: pendingOrder.amount,
         orderId: razorpay_order_id,
         shippingAddress: pendingOrder.shippingAddress
       });
 
-      await sendEmail({
+      await sendGmailEmail({
         to: pendingOrder.shippingAddress.email,
         subject: 'Order Confirmation - GulMehak',
         html: htmlContent,

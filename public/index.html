@@ -222,30 +222,77 @@
       <p class="shipping-note">We ship worldwide! Shipping fee for India: ₹100 | International: Free</p>
       <p class="payment-note">Payment method: Online payment only (No cash on delivery)</p>
       <form id="addressForm" onsubmit="submitAddress(event)">
-        <div class="form-row">
-          <input type="text" id="shippingName" placeholder="Full Name *" required>
-          <input type="email" id="shippingEmail" placeholder="Email Address *" required>
-        </div>
-        <input type="tel" id="shippingPhone" placeholder="Phone Number *" required style="margin-bottom: 1rem;">
-        <textarea id="shippingAddress" placeholder="Street Address *" rows="3" required></textarea>
-        <div class="form-row">
-          <input type="text" id="shippingCity" placeholder="City *" required>
-          <input type="text" id="shippingState" placeholder="State/Province *" required>
-        </div>
-        <div class="form-row">
-          <input type="text" id="shippingZip" placeholder="ZIP/Postal Code *" required>
-          <select id="shippingCountry" required>
-            <option value="">Select Country *</option>
-            <option value="India">India</option>
-            <option value="USA">United States</option>
-            <option value="UK">United Kingdom</option>
-            <option value="Canada">Canada</option>
-            <option value="Australia">Australia</option>
-            <option value="UAE">United Arab Emirates</option>
-            <option value="Singapore">Singapore</option>
-            <option value="Other">Other</option>
+        <div class="quantity-section" style="margin-bottom: 1.5rem;">
+          <label for="orderQuantity" style="display: block; margin-bottom: 0.5rem; font-weight: 500; color: #2b2b2b;">Quantity:</label>
+          <select id="orderQuantity" required style="width: 100%; padding: 0.9rem; border: 1px solid #ddd; border-radius: 5px; font-size: 0.95rem;">
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+            <option value="6">6</option>
+            <option value="7">7</option>
+            <option value="8">8</option>
+            <option value="9">9</option>
+            <option value="10">10</option>
           </select>
         </div>
+        
+        <div class="address-mode-toggle" style="margin-bottom: 1.5rem; text-align: center;">
+          <button type="button" id="structuredModeBtn" class="mode-toggle-btn active" onclick="switchAddressMode('structured')">Use Form</button>
+          <button type="button" id="manualModeBtn" class="mode-toggle-btn" onclick="switchAddressMode('manual')">Enter Manually</button>
+        </div>
+        
+        <div id="structuredAddressFields">
+          <div class="form-row">
+            <input type="text" id="shippingName" placeholder="Full Name *">
+            <input type="email" id="shippingEmail" placeholder="Email Address *">
+          </div>
+          <input type="tel" id="shippingPhone" placeholder="Phone Number *" style="margin-bottom: 1rem;">
+          <textarea id="shippingAddress" placeholder="Street Address *" rows="3"></textarea>
+          <div class="form-row">
+            <input type="text" id="shippingCity" placeholder="City *">
+            <input type="text" id="shippingState" placeholder="State/Province *">
+          </div>
+          <div class="form-row">
+            <input type="text" id="shippingZip" placeholder="ZIP/Postal Code *">
+            <select id="shippingCountry" onchange="handleCountryChange()">
+              <option value="">Select Country *</option>
+              <option value="India">India</option>
+              <option value="USA">United States</option>
+              <option value="UK">United Kingdom</option>
+              <option value="Canada">Canada</option>
+              <option value="Australia">Australia</option>
+              <option value="UAE">United Arab Emirates</option>
+              <option value="Singapore">Singapore</option>
+              <option value="Germany">Germany</option>
+              <option value="France">France</option>
+              <option value="Japan">Japan</option>
+              <option value="South Korea">South Korea</option>
+              <option value="Saudi Arabia">Saudi Arabia</option>
+              <option value="Qatar">Qatar</option>
+              <option value="Kuwait">Kuwait</option>
+              <option value="Oman">Oman</option>
+              <option value="Bahrain">Bahrain</option>
+              <option value="Other">Other (Enter Manually)</option>
+            </select>
+          </div>
+          <div id="manualCountryInput" style="display: none; margin-bottom: 1rem;">
+            <input type="text" id="manualCountry" placeholder="Enter your country *" style="width: 100%; padding: 0.9rem; border: 1px solid #ddd; border-radius: 5px; font-size: 0.95rem;">
+          </div>
+        </div>
+        
+        <div id="manualAddressFields" style="display: none;">
+          <div class="form-row" style="margin-bottom: 1rem;">
+            <input type="text" id="manualName" placeholder="Full Name *">
+            <input type="email" id="manualEmail" placeholder="Email Address *">
+          </div>
+          <input type="tel" id="manualPhone" placeholder="Phone Number *" style="width: 100%; padding: 0.9rem; border: 1px solid #ddd; border-radius: 5px; font-size: 0.95rem; margin-bottom: 1rem;">
+          <label style="display: block; margin-bottom: 0.5rem; font-weight: 500; color: #2b2b2b;">Complete Address:</label>
+          <textarea id="manualFullAddress" placeholder="Please enter your complete address including:&#10;Street Address&#10;City, State/Province&#10;ZIP/Postal Code&#10;Country" rows="6" style="width: 100%; padding: 0.9rem; border: 1px solid #ddd; border-radius: 5px; font-size: 0.95rem; resize: vertical;"></textarea>
+          <p style="font-size: 0.85rem; color: #666; margin-top: 0.5rem;">Enter your full delivery address with all details</p>
+        </div>
+        
         <button type="submit" class="address-submit-button">Continue to Payment</button>
       </form>
     </div>

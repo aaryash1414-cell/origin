@@ -17,11 +17,14 @@ function createOrderConfirmationEmail(orderData) {
     customerName,
     productName,
     productPrice,
+    quantity,
     shippingFee,
     totalAmount,
     orderId,
     shippingAddress
   } = orderData;
+  
+  const qty = quantity || 1;
   
   const logoBase64 = getLogoBase64();
   
@@ -114,15 +117,15 @@ function createOrderConfirmationEmail(orderData) {
     <div class="product-item">
       <div class="product-name">${productName}</div>
       <div style="display: flex; justify-content: space-between; margin-top: 10px;">
-        <span>Quantity: 1</span>
-        <span class="price">₹${(productPrice / 100).toLocaleString('en-IN')}</span>
+        <span>Unit Price: ₹${(productPrice / 100).toLocaleString('en-IN')}</span>
+        <span>Quantity: ${qty}</span>
       </div>
     </div>
     
     <div style="margin-top: 15px;">
       <div style="display: flex; justify-content: space-between; padding: 5px 0;">
-        <span>Subtotal:</span>
-        <span>₹${(productPrice / 100).toLocaleString('en-IN')}</span>
+        <span>Subtotal (₹${(productPrice / 100).toLocaleString('en-IN')} x ${qty}):</span>
+        <span>₹${((productPrice * qty) / 100).toLocaleString('en-IN')}</span>
       </div>
       <div style="display: flex; justify-content: space-between; padding: 5px 0;">
         <span>Shipping Fee:</span>
@@ -138,9 +141,12 @@ function createOrderConfirmationEmail(orderData) {
   <div class="shipping-address">
     <h4 style="margin-top: 0; color: #6b2d2d;">Shipping Address:</h4>
     <p style="margin: 5px 0;">${shippingAddress.name}</p>
-    <p style="margin: 5px 0;">${shippingAddress.address}</p>
-    <p style="margin: 5px 0;">${shippingAddress.city}, ${shippingAddress.state} ${shippingAddress.zip}</p>
-    <p style="margin: 5px 0;">${shippingAddress.country}</p>
+    ${shippingAddress.mode === 'manual' 
+      ? `<p style="margin: 5px 0; white-space: pre-line;">${shippingAddress.fullAddress}</p>`
+      : `<p style="margin: 5px 0;">${shippingAddress.address}</p>
+         <p style="margin: 5px 0;">${shippingAddress.city}, ${shippingAddress.state} ${shippingAddress.zip}</p>
+         <p style="margin: 5px 0;">${shippingAddress.country}</p>`
+    }
     <p style="margin: 5px 0;">Phone: ${shippingAddress.phone}</p>
   </div>
   
@@ -169,19 +175,20 @@ ORDER DETAILS
 Order ID: ${orderId}
 
 Product: ${productName}
-Quantity: 1
-Price: ₹${(productPrice / 100).toLocaleString('en-IN')}
+Unit Price: ₹${(productPrice / 100).toLocaleString('en-IN')}
+Quantity: ${qty}
 
-Subtotal: ₹${(productPrice / 100).toLocaleString('en-IN')}
+Subtotal: ₹${((productPrice * qty) / 100).toLocaleString('en-IN')}
 Shipping Fee: ₹${(shippingFee / 100).toLocaleString('en-IN')}
 --------------
 TOTAL: ₹${(totalAmount / 100).toLocaleString('en-IN')}
 
 SHIPPING ADDRESS:
 ${shippingAddress.name}
-${shippingAddress.address}
-${shippingAddress.city}, ${shippingAddress.state} ${shippingAddress.zip}
-${shippingAddress.country}
+${shippingAddress.mode === 'manual' 
+  ? shippingAddress.fullAddress
+  : `${shippingAddress.address}\n${shippingAddress.city}, ${shippingAddress.state} ${shippingAddress.zip}\n${shippingAddress.country}`
+}
 Phone: ${shippingAddress.phone}
 
 Your order will be carefully packaged and shipped to you soon. We'll send you a tracking number once it's on its way.
