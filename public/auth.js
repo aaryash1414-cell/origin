@@ -94,6 +94,7 @@ async function submitAddress(event) {
   event.preventDefault();
   
   const quantity = parseInt(document.getElementById('orderQuantity').value);
+  const productId = currentProductId;
   let shippingAddress;
   
   if (currentAddressMode === 'structured') {
@@ -144,7 +145,7 @@ async function submitAddress(event) {
   }
 
   closeAddressModal();
-  await processPurchase(currentProductId, shippingAddress, quantity);
+  await processPurchase(productId, shippingAddress, quantity);
 }
 
 async function buyProduct(productId) {
