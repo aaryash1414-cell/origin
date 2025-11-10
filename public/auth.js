@@ -227,6 +227,10 @@ async function processPurchase(productId, shippingAddress, quantity) {
       }
     };
 
+    if (typeof Razorpay === 'undefined') {
+      throw new Error('Payment system not loaded. Please refresh the page and try again.');
+    }
+
     const rzp = new Razorpay(options);
     rzp.open();
   } catch (error) {
