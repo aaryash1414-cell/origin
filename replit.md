@@ -6,10 +6,15 @@ GulMehak is an e-commerce website specializing in traditional Indian luxury garm
 ## Current Features
 - User authentication (signup, login, logout)
 - Product catalog with featured items
-- Razorpay payment integration for secure transactions
+- Shopping cart functionality with persistence
+- Product detail modals with images and descriptions
+- Add to cart and buy now options
+- Cart management (view, update quantities, remove items, select items for checkout)
+- Razorpay payment integration for secure transactions (supports UPI, cards, netbanking, wallets)
 - Order processing and verification
 - Responsive design using Pico.css
 - Session management for user accounts
+- Cart persistence for logged-in users
 
 ## Product Catalog
 - Kashmiri Coat - ₹3,000
@@ -33,6 +38,21 @@ GulMehak is an e-commerce website specializing in traditional Indian luxury garm
 - Logo to be used in automated emails when implemented
 
 ## Recent Changes
+- November 11, 2025:
+  - Complete shopping cart system implemented
+  - Added product detail modals showing full product information (description, price, image)
+  - Product images now clickable to view details
+  - Added "Add to Cart" button alongside "Buy Now" in shop section
+  - Shopping cart icon in navigation with item count badge
+  - Cart modal with item selection, quantity controls, and remove options
+  - Checkout options: "Buy Selected" or "Buy All" from cart
+  - Cart persistence for logged-in users (stored in carts.json)
+  - Guest cart syncs with user cart on login
+  - Cart automatically clears purchased items after successful payment
+  - Changed "View Details" to "Buy Now" in featured collection
+  - UPI payment option enabled by default through Razorpay
+  - Cart backend API endpoints: /api/cart, /api/cart/add, /api/cart/update, /api/cart/remove, /api/cart/clear, /api/cart/checkout
+  
 - November 09, 2025: 
   - Logo added for email automation
   - Integrated Gmail (gulmehak201984@gmail.com) for sending order confirmation emails
@@ -53,8 +73,13 @@ GulMehak is an e-commerce website specializing in traditional Indian luxury garm
 - None specified yet
 
 ## Project Architecture
-- `server.js`: Main Express server with all API endpoints
+- `server.js`: Main Express server with all API endpoints (auth, cart, payment)
 - `public/`: Static files (HTML, CSS, JavaScript)
-- `users.json`: User data storage
-- `orders.json`: Order data storage
+- `public/auth.js`: Client-side authentication, cart management, and payment logic
+- `public/index.html`: Main HTML with product displays, modals, and cart UI
+- `public/style.css`: Complete styling including cart and product detail modals
+- `data/users.json`: User data storage
+- `data/orders.json`: Order data storage (supports both single and cart orders)
+- `data/carts.json`: Shopping cart persistence for logged-in users
 - Razorpay integration configured via environment variables
+- Session-based cart for guests, file-based persistence for authenticated users

@@ -13,6 +13,7 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 const USERS_FILE = path.join(__dirname, 'data', 'users.json');
 const ORDERS_FILE = path.join(__dirname, 'data', 'orders.json');
+const CARTS_FILE = path.join(__dirname, 'data', 'carts.json');
 const SESSION_SECRET = process.env.SESSION_SECRET || 'poshaak-session-secret-' + Date.now();
 
 let razorpay = null;
@@ -93,6 +94,26 @@ function writeOrders(orders) {
   }
 }
 
+function readCarts() {
+  try {
+    if (fs.existsSync(CARTS_FILE)) {
+      const data = fs.readFileSync(CARTS_FILE, 'utf8');
+      return JSON.parse(data);
+    }
+  } catch (error) {
+    console.error('Error reading carts file:', error);
+  }
+  return {};
+}
+
+function writeCarts(carts) {
+  try {
+    fs.writeFileSync(CARTS_FILE, JSON.stringify(carts, null, 2));
+  } catch (error) {
+    console.error('Error writing carts file:', error);
+  }
+}
+
 app.post('/api/signup', async (req, res) => {
   const { email, password, name } = req.body;
 
@@ -152,6 +173,25 @@ app.post('/api/login', async (req, res) => {
   req.session.userEmail = user.email;
   req.session.userName = user.name;
 
+  const carts = readCarts();
+  const sessionCart = req.session.cart || [];
+  const userCart = carts[user.id] || [];
+  
+  if (sessionCart.length > 0) {
+    sessionCart.forEach(sessionItem => {
+      const existingItem = userCart.find(item => item.productId === sessionItem.productId);
+      if (existingItem) {
+        existingItem.quantity = Math.min(existingItem.quantity + sessionItem.quantity, 10);
+      } else {
+        userCart.push(sessionItem);
+      }
+    });
+  }
+  
+  req.session.cart = userCart;
+  carts[user.id] = userCart;
+  writeCarts(carts);
+
   res.json({ 
     success: true, 
     user: { id: user.id, email: user.email, name: user.name }
@@ -179,6 +219,216 @@ app.get('/api/check-auth', (req, res) => {
     });
   } else {
     res.json({ authenticated: false });
+  }
+});
+
+app.get('/api/cart', (req, res) => {
+  if (!req.session.cart) {
+    req.session.cart = [];
+  }
+  
+  if (req.session.userId) {
+    const carts = readCarts();
+    const userCart = carts[req.session.userId] || [];
+    req.session.cart = userCart;
+  }
+  
+  res.json({ cart: req.session.cart });
+});
+
+app.post('/api/cart/add', (req, res) => {
+  const { productId, quantity } = req.body;
+  
+  if (!productId || !PRODUCTS[productId]) {
+    return res.status(400).json({ error: 'Invalid product' });
+  }
+  
+  const qty = quantity || 1;
+  if (qty < 1 || qty > 10) {
+    return res.status(400).json({ error: 'Quantity must be between 1 and 10' });
+  }
+  
+  if (!req.session.cart) {
+    req.session.cart = [];
+  }
+  
+  const existingItem = req.session.cart.find(item => item.productId === productId);
+  if (existingItem) {
+    existingItem.quantity = Math.min(existingItem.quantity + qty, 10);
+  } else {
+    req.session.cart.push({
+      productId,
+      quantity: qty,
+      addedAt: new Date().toISOString()
+    });
+  }
+  
+  if (req.session.userId) {
+    const carts = readCarts();
+    carts[req.session.userId] = req.session.cart;
+    writeCarts(carts);
+  }
+  
+  res.json({ success: true, cart: req.session.cart });
+});
+
+app.put('/api/cart/update', (req, res) => {
+  const { productId, quantity } = req.body;
+  
+  if (!productId || !PRODUCTS[productId]) {
+    return res.status(400).json({ error: 'Invalid product' });
+  }
+  
+  if (quantity < 1 || quantity > 10) {
+    return res.status(400).json({ error: 'Quantity must be between 1 and 10' });
+  }
+  
+  if (!req.session.cart) {
+    req.session.cart = [];
+  }
+  
+  const item = req.session.cart.find(item => item.productId === productId);
+  if (item) {
+    item.quantity = quantity;
+  }
+  
+  if (req.session.userId) {
+    const carts = readCarts();
+    carts[req.session.userId] = req.session.cart;
+    writeCarts(carts);
+  }
+  
+  res.json({ success: true, cart: req.session.cart });
+});
+
+app.delete('/api/cart/remove', (req, res) => {
+  const { productId } = req.body;
+  
+  if (!req.session.cart) {
+    req.session.cart = [];
+  }
+  
+  req.session.cart = req.session.cart.filter(item => item.productId !== productId);
+  
+  if (req.session.userId) {
+    const carts = readCarts();
+    carts[req.session.userId] = req.session.cart;
+    writeCarts(carts);
+  }
+  
+  res.json({ success: true, cart: req.session.cart });
+});
+
+app.post('/api/cart/clear', (req, res) => {
+  req.session.cart = [];
+  
+  if (req.session.userId) {
+    const carts = readCarts();
+    carts[req.session.userId] = [];
+    writeCarts(carts);
+  }
+  
+  res.json({ success: true });
+});
+
+app.post('/api/cart/checkout', async (req, res) => {
+  if (!razorpay) {
+    return res.status(503).json({ error: 'Payment system not configured' });
+  }
+
+  const { selectedProductIds, shippingAddress } = req.body;
+
+  if (!shippingAddress || !shippingAddress.name || !shippingAddress.email || !shippingAddress.phone) {
+    return res.status(400).json({ error: 'Name, email and phone are required' });
+  }
+
+  if (shippingAddress.mode === 'manual') {
+    if (!shippingAddress.fullAddress) {
+      return res.status(400).json({ error: 'Complete address is required' });
+    }
+  } else {
+    if (!shippingAddress.address || !shippingAddress.city || !shippingAddress.state || 
+        !shippingAddress.zip || !shippingAddress.country) {
+      return res.status(400).json({ error: 'Complete shipping address required' });
+    }
+  }
+
+  if (!req.session.cart || req.session.cart.length === 0) {
+    return res.status(400).json({ error: 'Cart is empty' });
+  }
+
+  let itemsToCheckout = req.session.cart;
+  if (selectedProductIds && selectedProductIds.length > 0) {
+    itemsToCheckout = req.session.cart.filter(item => selectedProductIds.includes(item.productId));
+  }
+
+  if (itemsToCheckout.length === 0) {
+    return res.status(400).json({ error: 'No items selected for checkout' });
+  }
+
+  let subtotal = 0;
+  const orderItems = [];
+
+  for (const item of itemsToCheckout) {
+    const product = PRODUCTS[item.productId];
+    if (!product) {
+      return res.status(400).json({ error: `Invalid product: ${item.productId}` });
+    }
+    subtotal += product.price * item.quantity;
+    orderItems.push({
+      productId: item.productId,
+      productName: product.name,
+      productPrice: product.price,
+      quantity: item.quantity
+    });
+  }
+
+  let shippingFee = 0;
+  if (shippingAddress.mode === 'manual') {
+    const addressLower = shippingAddress.fullAddress.toLowerCase();
+    shippingFee = addressLower.includes('india') ? SHIPPING_FEE_INDIA : 0;
+  } else {
+    shippingFee = shippingAddress.country.toLowerCase() === 'india' ? SHIPPING_FEE_INDIA : 0;
+  }
+
+  const totalAmount = subtotal + shippingFee;
+
+  try {
+    const options = {
+      amount: totalAmount,
+      currency: 'INR',
+      receipt: 'cart_order_' + Date.now(),
+      notes: {
+        orderType: 'cart',
+        itemCount: orderItems.length,
+        shippingCountry: shippingAddress.country || 'Manual Entry'
+      }
+    };
+
+    const order = await razorpay.orders.create(options);
+
+    pendingOrders.set(order.id, {
+      orderType: 'cart',
+      items: orderItems,
+      subtotal,
+      shippingFee,
+      amount: totalAmount,
+      shippingAddress,
+      userId: req.session.userId || 'guest',
+      userEmail: req.session.userEmail || 'unknown',
+      createdAt: new Date().toISOString()
+    });
+
+    res.json({
+      orderId: order.id,
+      amount: order.amount,
+      items: orderItems,
+      subtotal,
+      shippingFee
+    });
+  } catch (error) {
+    console.error('Error creating cart order:', error);
+    res.status(500).json({ error: 'Failed to create order' });
   }
 });
 
@@ -295,13 +545,17 @@ app.post('/api/verify-payment', async (req, res) => {
 
   if (expectedSignature === razorpay_signature) {
     const orders = readOrders();
+    
     const newOrder = {
       orderId: razorpay_order_id,
       paymentId: razorpay_payment_id,
+      orderType: pendingOrder.orderType || 'single',
       productId: pendingOrder.productId,
       productName: pendingOrder.productName,
       productPrice: pendingOrder.productPrice,
       quantity: pendingOrder.quantity,
+      items: pendingOrder.items,
+      subtotal: pendingOrder.subtotal,
       shippingFee: pendingOrder.shippingFee,
       amount: pendingOrder.amount,
       shippingAddress: pendingOrder.shippingAddress,
@@ -316,18 +570,48 @@ app.post('/api/verify-payment', async (req, res) => {
 
     pendingOrders.delete(razorpay_order_id);
 
+    if (pendingOrder.orderType === 'cart' && req.session.cart) {
+      const selectedIds = pendingOrder.items.map(item => item.productId);
+      req.session.cart = req.session.cart.filter(item => !selectedIds.includes(item.productId));
+      
+      if (req.session.userId) {
+        const carts = readCarts();
+        carts[req.session.userId] = req.session.cart;
+        writeCarts(carts);
+      }
+    }
+
     // Send order confirmation email
     try {
-      const { htmlContent, textContent } = createOrderConfirmationEmail({
-        customerName: pendingOrder.shippingAddress.name,
-        productName: pendingOrder.productName,
-        productPrice: pendingOrder.productPrice,
-        quantity: pendingOrder.quantity,
-        shippingFee: pendingOrder.shippingFee,
-        totalAmount: pendingOrder.amount,
-        orderId: razorpay_order_id,
-        shippingAddress: pendingOrder.shippingAddress
-      });
+      let emailData;
+      if (pendingOrder.orderType === 'cart') {
+        const itemsList = pendingOrder.items.map(item => 
+          `${item.productName} x ${item.quantity}`
+        ).join(', ');
+        emailData = {
+          customerName: pendingOrder.shippingAddress.name,
+          productName: itemsList,
+          productPrice: pendingOrder.subtotal,
+          quantity: pendingOrder.items.reduce((sum, item) => sum + item.quantity, 0),
+          shippingFee: pendingOrder.shippingFee,
+          totalAmount: pendingOrder.amount,
+          orderId: razorpay_order_id,
+          shippingAddress: pendingOrder.shippingAddress
+        };
+      } else {
+        emailData = {
+          customerName: pendingOrder.shippingAddress.name,
+          productName: pendingOrder.productName,
+          productPrice: pendingOrder.productPrice,
+          quantity: pendingOrder.quantity,
+          shippingFee: pendingOrder.shippingFee,
+          totalAmount: pendingOrder.amount,
+          orderId: razorpay_order_id,
+          shippingAddress: pendingOrder.shippingAddress
+        };
+      }
+      
+      const { htmlContent, textContent } = createOrderConfirmationEmail(emailData);
 
       await sendGmailEmail({
         to: pendingOrder.shippingAddress.email,

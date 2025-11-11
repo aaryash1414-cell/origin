@@ -1,5 +1,18 @@
 let currentUser = null;
 let razorpayKeyId = null;
+let cart = [];
+let currentDetailProductId = null;
+
+const PRODUCTS_DATA = {
+  'kashmiri-coat': { name: 'Kashmiri Coat', price: 3000, description: 'Exquisite handwoven Kashmiri coat featuring traditional embroidery and premium fabric. Perfect for special occasions.', image: 'kashmiri-coat.jpeg' },
+  'banarasi-suit': { name: 'Banarasi Suit', price: 2500, description: 'Beautiful Banarasi suit with intricate silk work. A timeless piece showcasing Indian craftsmanship.', image: 'banarasi-suit.jpeg' },
+  'banarasi-sari': { name: 'Banarasi Sari', price: 3000, description: 'Exquisite Banarasi silk sari with traditional brocade work. A masterpiece of Indian craftsmanship and heritage.', image: 'banarasi-sari.jpeg' },
+  'pashmina-shawl': { name: 'Pashmina Shawl', price: 5000, description: 'Luxurious handwoven Pashmina shawl, featuring intricate embroidery and timeless elegance. Perfect for any occasion.', image: 'pashmina-shawl.jpeg' },
+  'kota-doria-sari': { name: 'Kota Doria Sari', price: 2100, description: 'Light and airy Kota Doria sari with delicate patterns. Comfortable yet elegant for everyday wear.', image: 'kota-doria-sari.jpeg' },
+  'kashmiri-sari': { name: 'Kashmiri Sari', price: 11000, description: 'Premium Kashmiri sari with exquisite hand embroidery. A luxurious statement piece for special occasions.', image: 'kashmiri-sari.jpeg' },
+  'kashmiri-suit': { name: 'Kashmiri Suit', price: 3500, description: 'Elegant Kashmiri suit with delicate embroidery and premium fabric. Comfort meets sophistication in this piece.', image: 'kashmiri-suit.jpeg' },
+  'shawl': { name: 'Shawl', price: 4500, description: 'Premium quality shawl with traditional patterns. Perfect accessory for any outfit.', image: 'shawl.jpeg' }
+};
 
 function showMainView() {
   document.getElementById('mainView').style.display = 'block';
@@ -93,8 +106,6 @@ function closeAddressModal() {
 async function submitAddress(event) {
   event.preventDefault();
   
-  const quantity = parseInt(document.getElementById('orderQuantity').value);
-  const productId = currentProductId;
   let shippingAddress;
   
   if (currentAddressMode === 'structured') {
@@ -144,8 +155,17 @@ async function submitAddress(event) {
     };
   }
 
+  const checkoutIds = currentCartCheckoutIds;
+  const quantity = parseInt(document.getElementById('orderQuantity').value);
+  const productId = currentProductId;
+  
   closeAddressModal();
-  await processPurchase(productId, shippingAddress, quantity);
+  
+  if (checkoutIds) {
+    await processCartCheckout(checkoutIds, shippingAddress);
+  } else {
+    await processPurchase(productId, shippingAddress, quantity);
+  }
 }
 
 async function buyProduct(productId) {
@@ -243,6 +263,7 @@ async function processPurchase(productId, shippingAddress, quantity) {
 document.addEventListener('DOMContentLoaded', () => {
   getRazorpayKey();
   checkAuthStatus();
+  loadCart();
   
   const modal = document.getElementById('authModal');
   const accountLink = document.getElementById('accountLink');
@@ -272,6 +293,7 @@ async function checkAuthStatus() {
     if (data.authenticated) {
       currentUser = data.user;
       updateUIForAuthenticatedUser(data.user);
+      await loadCart();
     } else {
       currentUser = null;
       updateUIForGuest();
@@ -396,11 +418,361 @@ async function handleLogout() {
     
     if (response.ok) {
       currentUser = null;
+      cart = [];
+      updateCartBadge();
       updateUIForGuest();
       showTab('login');
       document.getElementById('authModal').style.display = 'none';
     }
   } catch (error) {
     console.error('Logout error:', error);
+  }
+}
+
+async function loadCart() {
+  try {
+    const response = await fetch('/api/cart');
+    const data = await response.json();
+    cart = data.cart || [];
+    updateCartBadge();
+  } catch (error) {
+    console.error('Failed to load cart:', error);
+    cart = [];
+  }
+}
+
+function updateCartBadge() {
+  const badge = document.getElementById('cartBadge');
+  const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+  if (totalItems > 0) {
+    badge.textContent = totalItems;
+    badge.style.display = 'inline-block';
+  } else {
+    badge.style.display = 'none';
+  }
+}
+
+function showProductDetail(productId) {
+  const product = PRODUCTS_DATA[productId];
+  if (!product) return;
+  
+  currentDetailProductId = productId;
+  document.getElementById('productDetailImg').src = product.image;
+  document.getElementById('productDetailImg').alt = product.name;
+  document.getElementById('productDetailName').textContent = product.name;
+  document.getElementById('productDetailDescription').textContent = product.description;
+  document.getElementById('productDetailPrice').textContent = `₹${product.price.toLocaleString()}`;
+  document.getElementById('productDetailModal').style.display = 'block';
+}
+
+function closeProductDetailModal() {
+  document.getElementById('productDetailModal').style.display = 'none';
+  currentDetailProductId = null;
+}
+
+async function addToCart(productId, event) {
+  if (event) {
+    event.stopPropagation();
+  }
+  
+  if (!razorpayKeyId) {
+    alert('Payment system is loading. Please try again in a moment.');
+    return;
+  }
+  
+  try {
+    const response = await fetch('/api/cart/add', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ productId, quantity: 1 })
+    });
+    
+    const data = await response.json();
+    
+    if (response.ok) {
+      cart = data.cart;
+      updateCartBadge();
+      alert(`${PRODUCTS_DATA[productId].name} added to cart!`);
+    } else {
+      alert(data.error || 'Failed to add to cart');
+    }
+  } catch (error) {
+    console.error('Error adding to cart:', error);
+    alert('Failed to add to cart');
+  }
+}
+
+async function addToCartFromDetail() {
+  if (currentDetailProductId) {
+    await addToCart(currentDetailProductId);
+    closeProductDetailModal();
+  }
+}
+
+async function buyNowFromDetail() {
+  if (currentDetailProductId) {
+    closeProductDetailModal();
+    buyProduct(currentDetailProductId);
+  }
+}
+
+function openCartModal() {
+  renderCart();
+  document.getElementById('cartModal').style.display = 'block';
+}
+
+function closeCartModal() {
+  document.getElementById('cartModal').style.display = 'none';
+}
+
+function renderCart() {
+  const container = document.getElementById('cartItemsContainer');
+  
+  if (cart.length === 0) {
+    container.innerHTML = '<p style="text-align: center; color: #666; padding: 2rem;">Your cart is empty</p>';
+    document.getElementById('cartTotal').textContent = '₹0';
+    return;
+  }
+  
+  let total = 0;
+  let html = '';
+  
+  cart.forEach(item => {
+    const product = PRODUCTS_DATA[item.productId];
+    if (!product) return;
+    
+    const itemTotal = product.price * item.quantity;
+    total += itemTotal;
+    
+    html += `
+      <div class="cart-item" style="display: flex; align-items: center; gap: 1rem; padding: 1rem; border-bottom: 1px solid #ddd; margin-bottom: 0.5rem;">
+        <input type="checkbox" class="cart-item-checkbox" data-product-id="${item.productId}" checked style="width: 20px; height: 20px; cursor: pointer;">
+        <img src="${product.image}" alt="${product.name}" style="width: 80px; height: 80px; object-fit: cover; border-radius: 4px;">
+        <div style="flex: 1;">
+          <h4 style="margin: 0 0 0.5rem 0; color: #6b2d2d;">${product.name}</h4>
+          <p style="margin: 0; color: #666;">₹${product.price.toLocaleString()} × ${item.quantity}</p>
+        </div>
+        <div style="display: flex; align-items: center; gap: 0.5rem;">
+          <button onclick="updateCartQuantity('${item.productId}', ${item.quantity - 1})" style="padding: 0.3rem 0.6rem; cursor: pointer; background: #ddd; border: none; border-radius: 3px;">-</button>
+          <span style="min-width: 30px; text-align: center;">${item.quantity}</span>
+          <button onclick="updateCartQuantity('${item.productId}', ${item.quantity + 1})" style="padding: 0.3rem 0.6rem; cursor: pointer; background: #ddd; border: none; border-radius: 3px;">+</button>
+        </div>
+        <p style="margin: 0; font-weight: 600; color: #6b2d2d; min-width: 80px; text-align: right;">₹${itemTotal.toLocaleString()}</p>
+        <button onclick="removeFromCart('${item.productId}')" style="padding: 0.5rem; cursor: pointer; background: #d9534f; color: white; border: none; border-radius: 3px;">Remove</button>
+      </div>
+    `;
+  });
+  
+  container.innerHTML = html;
+  document.getElementById('cartTotal').textContent = `₹${total.toLocaleString()}`;
+}
+
+async function updateCartQuantity(productId, newQuantity) {
+  if (newQuantity < 1) {
+    await removeFromCart(productId);
+    return;
+  }
+  
+  if (newQuantity > 10) {
+    alert('Maximum quantity is 10');
+    return;
+  }
+  
+  try {
+    const response = await fetch('/api/cart/update', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ productId, quantity: newQuantity })
+    });
+    
+    const data = await response.json();
+    
+    if (response.ok) {
+      cart = data.cart;
+      updateCartBadge();
+      renderCart();
+    } else {
+      alert(data.error || 'Failed to update cart');
+    }
+  } catch (error) {
+    console.error('Error updating cart:', error);
+    alert('Failed to update cart');
+  }
+}
+
+async function removeFromCart(productId) {
+  try {
+    const response = await fetch('/api/cart/remove', {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ productId })
+    });
+    
+    const data = await response.json();
+    
+    if (response.ok) {
+      cart = data.cart;
+      updateCartBadge();
+      renderCart();
+    } else {
+      alert(data.error || 'Failed to remove from cart');
+    }
+  } catch (error) {
+    console.error('Error removing from cart:', error);
+    alert('Failed to remove from cart');
+  }
+}
+
+async function clearCart() {
+  if (!confirm('Are you sure you want to clear your cart?')) {
+    return;
+  }
+  
+  try {
+    const response = await fetch('/api/cart/clear', {
+      method: 'POST'
+    });
+    
+    if (response.ok) {
+      cart = [];
+      updateCartBadge();
+      renderCart();
+    } else {
+      alert('Failed to clear cart');
+    }
+  } catch (error) {
+    console.error('Error clearing cart:', error);
+    alert('Failed to clear cart');
+  }
+}
+
+async function checkoutSelected() {
+  const checkboxes = document.querySelectorAll('.cart-item-checkbox:checked');
+  const selectedIds = Array.from(checkboxes).map(cb => cb.dataset.productId);
+  
+  if (selectedIds.length === 0) {
+    alert('Please select items to checkout');
+    return;
+  }
+  
+  closeCartModal();
+  showCartAddressModal(selectedIds);
+}
+
+async function checkoutAll() {
+  if (cart.length === 0) {
+    alert('Your cart is empty');
+    return;
+  }
+  
+  const selectedIds = cart.map(item => item.productId);
+  closeCartModal();
+  showCartAddressModal(selectedIds);
+}
+
+function showCartAddressModal(selectedIds) {
+  currentProductId = null;
+  currentCartCheckoutIds = selectedIds;
+  const modal = document.getElementById('addressModal');
+  modal.style.display = 'block';
+  
+  if (currentUser) {
+    document.getElementById('shippingName').value = currentUser.name;
+    document.getElementById('shippingEmail').value = currentUser.email;
+    document.getElementById('manualName').value = currentUser.name;
+    document.getElementById('manualEmail').value = currentUser.email;
+  }
+}
+
+let currentCartCheckoutIds = null;
+
+async function processCartCheckout(selectedProductIds, shippingAddress) {
+  try {
+    const orderResponse = await fetch('/api/cart/checkout', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ selectedProductIds, shippingAddress })
+    });
+
+    if (!orderResponse.ok) {
+      const errorData = await orderResponse.json();
+      throw new Error(errorData.error || 'Failed to create order');
+    }
+
+    const orderData = await orderResponse.json();
+    
+    const shippingFeeDisplay = orderData.shippingFee > 0 
+      ? `\nShipping Fee: ₹${(orderData.shippingFee / 100).toFixed(0)}`
+      : '\nShipping: Free for International Orders';
+    
+    const itemsText = orderData.items.map(item => `${item.productName} x ${item.quantity}`).join('\n');
+    const description = `Cart Order:\n${itemsText}${shippingFeeDisplay}\nTotal: ₹${(orderData.amount / 100).toFixed(0)}`;
+
+    const options = {
+      key: razorpayKeyId,
+      amount: orderData.amount,
+      currency: 'INR',
+      name: 'GulMehak',
+      description: description,
+      image: '/epsit.jpeg',
+      order_id: orderData.orderId,
+      handler: async function (response) {
+        try {
+          const verifyResponse = await fetch('/api/verify-payment', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature
+            })
+          });
+
+          const verifyData = await verifyResponse.json();
+
+          if (verifyResponse.ok && verifyData.success) {
+            await loadCart();
+            const addressText = shippingAddress.mode === 'manual' 
+              ? shippingAddress.fullAddress 
+              : `${shippingAddress.address}, ${shippingAddress.city}, ${shippingAddress.state}`;
+            alert('Payment successful! Thank you for your purchase.\n\nYour order will be shipped to:\n' + 
+                  addressText + 
+                  '\n\nOrder ID: ' + response.razorpay_order_id + 
+                  '\nPayment ID: ' + response.razorpay_payment_id);
+          } else {
+            alert('Payment verification failed. Please contact support with your payment ID: ' + response.razorpay_payment_id);
+          }
+        } catch (error) {
+          alert('Payment verification error. Please contact support.');
+          console.error('Verification error:', error);
+        }
+      },
+      prefill: {
+        name: shippingAddress.name,
+        email: currentUser ? currentUser.email : '',
+        contact: shippingAddress.phone
+      },
+      theme: {
+        color: '#6b2d2d'
+      },
+      modal: {
+        ondismiss: function() {
+          console.log('Payment cancelled by user');
+        }
+      }
+    };
+
+    if (typeof Razorpay === 'undefined') {
+      throw new Error('Payment system not loaded. Please refresh the page and try again.');
+    }
+
+    const rzp = new Razorpay(options);
+    rzp.open();
+    
+    currentCartCheckoutIds = null;
+  } catch (error) {
+    alert('Failed to initiate payment: ' + error.message);
+    console.error('Payment initiation error:', error);
+    currentCartCheckoutIds = null;
   }
 }

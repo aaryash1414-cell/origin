@@ -19,6 +19,14 @@
         <a href="#" onclick="showProductsView()">Shop</a>
         <a href="#" onclick="showMainView(); scrollToSection('about');">About</a>
         <a href="#" id="accountLink">Account</a>
+        <a href="#" onclick="openCartModal()" style="position: relative;">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="9" cy="21" r="1"></circle>
+            <circle cx="20" cy="21" r="1"></circle>
+            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+          </svg>
+          <span id="cartBadge" class="cart-badge" style="display: none;">0</span>
+        </a>
       </div>
     </div>
   </nav>
@@ -37,39 +45,39 @@
         <p class="featured-subtitle">Discover our handpicked favorites</p>
         
         <div class="featured-grid">
-          <div class="featured-card" onclick="buyProduct('pashmina-shawl')">
-            <div class="featured-image">
+          <div class="featured-card">
+            <div class="featured-image" onclick="showProductDetail('pashmina-shawl')">
               <img src="pashmina-shawl.jpeg" alt="Pashmina Shawl">
             </div>
             <div class="featured-info">
               <h3>Pashmina Shawl</h3>
               <p class="featured-description">Luxurious handwoven Pashmina shawl, featuring intricate embroidery and timeless elegance. Perfect for any occasion.</p>
               <p class="featured-price">₹5,000</p>
-              <button class="featured-buy-button">View Details</button>
+              <button class="featured-buy-button" onclick="buyProduct('pashmina-shawl')">BUY NOW</button>
             </div>
           </div>
 
-          <div class="featured-card" onclick="buyProduct('banarasi-sari')">
-            <div class="featured-image">
+          <div class="featured-card">
+            <div class="featured-image" onclick="showProductDetail('banarasi-sari')">
               <img src="banarasi-sari.jpeg" alt="Banarasi Sari">
             </div>
             <div class="featured-info">
               <h3>Banarasi Sari</h3>
               <p class="featured-description">Exquisite Banarasi silk sari with traditional brocade work. A masterpiece of Indian craftsmanship and heritage.</p>
               <p class="featured-price">₹3,000</p>
-              <button class="featured-buy-button">View Details</button>
+              <button class="featured-buy-button" onclick="buyProduct('banarasi-sari')">BUY NOW</button>
             </div>
           </div>
 
-          <div class="featured-card" onclick="buyProduct('kashmiri-suit')">
-            <div class="featured-image">
+          <div class="featured-card">
+            <div class="featured-image" onclick="showProductDetail('kashmiri-suit')">
               <img src="kashmiri-suit.jpeg" alt="Kashmiri Suit">
             </div>
             <div class="featured-info">
               <h3>Kashmiri Suit</h3>
               <p class="featured-description">Elegant Kashmiri suit with delicate embroidery and premium fabric. Comfort meets sophistication in this piece.</p>
               <p class="featured-price">₹3,500</p>
-              <button class="featured-buy-button">View Details</button>
+              <button class="featured-buy-button" onclick="buyProduct('kashmiri-suit')">BUY NOW</button>
             </div>
           </div>
         </div>
@@ -125,53 +133,77 @@
         <h2>Our Collection</h2>
       </div>
       <div class="products-grid">
-        <div class="product-card" onclick="buyProduct('kashmiri-coat')">
-          <img src="kashmiri-coat.jpeg" alt="Kashmiri Coat">
+        <div class="product-card">
+          <img src="kashmiri-coat.jpeg" alt="Kashmiri Coat" onclick="showProductDetail('kashmiri-coat')">
           <h3>KASHMIRI COAT</h3>
           <p class="price">₹3,000</p>
-          <button class="buy-button">BUY NOW</button>
+          <div class="product-card-buttons">
+            <button class="add-cart-button" onclick="addToCart('kashmiri-coat', event)">ADD TO CART</button>
+            <button class="buy-button" onclick="buyProduct('kashmiri-coat')">BUY NOW</button>
+          </div>
         </div>
-        <div class="product-card" onclick="buyProduct('banarasi-suit')">
-          <img src="banarasi-suit.jpeg" alt="Banarasi Suit">
+        <div class="product-card">
+          <img src="banarasi-suit.jpeg" alt="Banarasi Suit" onclick="showProductDetail('banarasi-suit')">
           <h3>BANARASI SUIT</h3>
           <p class="price">₹2,500</p>
-          <button class="buy-button">BUY NOW</button>
+          <div class="product-card-buttons">
+            <button class="add-cart-button" onclick="addToCart('banarasi-suit', event)">ADD TO CART</button>
+            <button class="buy-button" onclick="buyProduct('banarasi-suit')">BUY NOW</button>
+          </div>
         </div>
-        <div class="product-card" onclick="buyProduct('banarasi-sari')">
-          <img src="banarasi-sari.jpeg" alt="Banarasi Sari">
+        <div class="product-card">
+          <img src="banarasi-sari.jpeg" alt="Banarasi Sari" onclick="showProductDetail('banarasi-sari')">
           <h3>BANARASI SARI</h3>
           <p class="price">₹3,000</p>
-          <button class="buy-button">BUY NOW</button>
+          <div class="product-card-buttons">
+            <button class="add-cart-button" onclick="addToCart('banarasi-sari', event)">ADD TO CART</button>
+            <button class="buy-button" onclick="buyProduct('banarasi-sari')">BUY NOW</button>
+          </div>
         </div>
-        <div class="product-card" onclick="buyProduct('pashmina-shawl')">
-          <img src="pashmina-shawl.jpeg" alt="Pashmina Shawl">
+        <div class="product-card">
+          <img src="pashmina-shawl.jpeg" alt="Pashmina Shawl" onclick="showProductDetail('pashmina-shawl')">
           <h3>PASHMINA SHAWL</h3>
           <p class="price">₹5,000</p>
-          <button class="buy-button">BUY NOW</button>
+          <div class="product-card-buttons">
+            <button class="add-cart-button" onclick="addToCart('pashmina-shawl', event)">ADD TO CART</button>
+            <button class="buy-button" onclick="buyProduct('pashmina-shawl')">BUY NOW</button>
+          </div>
         </div>
-        <div class="product-card" onclick="buyProduct('kota-doria-sari')">
-          <img src="kota-doria-sari.jpeg" alt="Kota Doria Sari">
+        <div class="product-card">
+          <img src="kota-doria-sari.jpeg" alt="Kota Doria Sari" onclick="showProductDetail('kota-doria-sari')">
           <h3>KOTA DORIA SARI</h3>
           <p class="price">₹2,100</p>
-          <button class="buy-button">BUY NOW</button>
+          <div class="product-card-buttons">
+            <button class="add-cart-button" onclick="addToCart('kota-doria-sari', event)">ADD TO CART</button>
+            <button class="buy-button" onclick="buyProduct('kota-doria-sari')">BUY NOW</button>
+          </div>
         </div>
-        <div class="product-card" onclick="buyProduct('kashmiri-sari')">
-          <img src="kashmiri-sari.jpeg" alt="Kashmiri Sari">
+        <div class="product-card">
+          <img src="kashmiri-sari.jpeg" alt="Kashmiri Sari" onclick="showProductDetail('kashmiri-sari')">
           <h3>KASHMIRI SARI</h3>
           <p class="price">₹11,000</p>
-          <button class="buy-button">BUY NOW</button>
+          <div class="product-card-buttons">
+            <button class="add-cart-button" onclick="addToCart('kashmiri-sari', event)">ADD TO CART</button>
+            <button class="buy-button" onclick="buyProduct('kashmiri-sari')">BUY NOW</button>
+          </div>
         </div>
-        <div class="product-card" onclick="buyProduct('kashmiri-suit')">
-          <img src="kashmiri-suit.jpeg" alt="Kashmiri Suit">
+        <div class="product-card">
+          <img src="kashmiri-suit.jpeg" alt="Kashmiri Suit" onclick="showProductDetail('kashmiri-suit')">
           <h3>KASHMIRI SUIT</h3>
           <p class="price">₹3,500</p>
-          <button class="buy-button">BUY NOW</button>
+          <div class="product-card-buttons">
+            <button class="add-cart-button" onclick="addToCart('kashmiri-suit', event)">ADD TO CART</button>
+            <button class="buy-button" onclick="buyProduct('kashmiri-suit')">BUY NOW</button>
+          </div>
         </div>
-        <div class="product-card" onclick="buyProduct('shawl')">
-          <img src="shawl.jpeg" alt="Shawl">
+        <div class="product-card">
+          <img src="shawl.jpeg" alt="Shawl" onclick="showProductDetail('shawl')">
           <h3>SHAWL</h3>
           <p class="price">₹4,500</p>
-          <button class="buy-button">BUY NOW</button>
+          <div class="product-card-buttons">
+            <button class="add-cart-button" onclick="addToCart('shawl', event)">ADD TO CART</button>
+            <button class="buy-button" onclick="buyProduct('shawl')">BUY NOW</button>
+          </div>
         </div>
       </div>
     </section>
@@ -295,6 +327,42 @@
         
         <button type="submit" class="address-submit-button">Continue to Payment</button>
       </form>
+    </div>
+  </div>
+
+  <div id="productDetailModal" class="modal">
+    <div class="modal-content product-detail-modal">
+      <span class="close" onclick="closeProductDetailModal()">&times;</span>
+      <div class="product-detail-container">
+        <div class="product-detail-image">
+          <img id="productDetailImg" src="" alt="">
+        </div>
+        <div class="product-detail-info">
+          <h2 id="productDetailName"></h2>
+          <p id="productDetailDescription" class="product-detail-desc"></p>
+          <p id="productDetailPrice" class="product-detail-price"></p>
+          <div class="product-detail-actions">
+            <button onclick="addToCartFromDetail()" class="product-action-btn add-to-cart-btn">ADD TO CART</button>
+            <button onclick="buyNowFromDetail()" class="product-action-btn buy-now-btn">BUY NOW</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="cartModal" class="modal">
+    <div class="modal-content cart-modal-content">
+      <span class="close" onclick="closeCartModal()">&times;</span>
+      <h2>Shopping Cart</h2>
+      <div id="cartItemsContainer"></div>
+      <div id="cartSummary" style="margin-top: 2rem; border-top: 2px solid #ddd; padding-top: 1rem;">
+        <p style="font-size: 1.2rem; font-weight: 600; color: #6b2d2d;">Total: <span id="cartTotal">₹0</span></p>
+      </div>
+      <div class="cart-actions" style="margin-top: 1.5rem; display: flex; gap: 1rem;">
+        <button onclick="checkoutSelected()" class="cart-checkout-btn">BUY SELECTED</button>
+        <button onclick="checkoutAll()" class="cart-checkout-btn">BUY ALL</button>
+        <button onclick="clearCart()" class="cart-clear-btn">CLEAR CART</button>
+      </div>
     </div>
   </div>
 
