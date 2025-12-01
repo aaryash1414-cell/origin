@@ -38,6 +38,16 @@ GulMehak is an e-commerce website specializing in traditional Indian luxury garm
 - Logo to be used in automated emails when implemented
 
 ## Recent Changes
+- December 01, 2025:
+  - Updated shipping fees:
+    * India: ₹100
+    * Worldwide/International: ₹500
+  - Added admin notification emails for every order
+    * Automated emails sent to dhar.e2@gmail.com and gulmehak201984@gmail.com
+    * Includes customer name, email, phone, address, products, quantities, prices, shipping, total, payment ID
+  - Admin notification email template with professional formatting
+  - Removed "Free for International Orders" messaging (all orders now have shipping fees)
+  
 - November 11, 2025:
   - Complete shopping cart system implemented
   - Added product detail modals showing full product information (description, price, image)
@@ -58,7 +68,7 @@ GulMehak is an e-commerce website specializing in traditional Indian luxury garm
   - Integrated Gmail (gulmehak201984@gmail.com) for sending order confirmation emails
   - Email utility created with order confirmation templates
   - Customers now receive automatic emails after successful payment from GulMehak Gmail
-  - Shipping fee confirmed as ₹100 for India
+  - Initial shipping fee structure implemented
   - Added business Instagram (@gulmehak14) and contact email to footer
   - Updated footer with social links and contact information
   - Added quantity selector (1-10) in checkout
