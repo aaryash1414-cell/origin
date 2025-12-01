@@ -192,9 +192,7 @@ async function processPurchase(productId, shippingAddress, quantity) {
 
     const orderData = await orderResponse.json();
     
-    const shippingFeeDisplay = orderData.shippingFee > 0 
-      ? `\nShipping Fee: ₹${(orderData.shippingFee / 100).toFixed(0)}`
-      : '\nShipping: Free for International Orders';
+    const shippingFeeDisplay = `\nShipping Fee: ₹${(orderData.shippingFee / 100).toFixed(0)}`;
     
     const description = `Quantity: ${orderData.quantity}\nProduct: ₹${(orderData.productPrice / 100).toFixed(0)} x ${orderData.quantity}${shippingFeeDisplay}\nTotal: ₹${(orderData.amount / 100).toFixed(0)}`;
 
@@ -701,9 +699,7 @@ async function processCartCheckout(selectedProductIds, shippingAddress) {
 
     const orderData = await orderResponse.json();
     
-    const shippingFeeDisplay = orderData.shippingFee > 0 
-      ? `\nShipping Fee: ₹${(orderData.shippingFee / 100).toFixed(0)}`
-      : '\nShipping: Free for International Orders';
+    const shippingFeeDisplay = `\nShipping Fee: ₹${(orderData.shippingFee / 100).toFixed(0)}`;
     
     const itemsText = orderData.items.map(item => `${item.productName} x ${item.quantity}`).join('\n');
     const description = `Cart Order:\n${itemsText}${shippingFeeDisplay}\nTotal: ₹${(orderData.amount / 100).toFixed(0)}`;

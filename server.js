@@ -7,7 +7,7 @@ const path = require('path');
 const Razorpay = require('razorpay');
 const crypto = require('crypto');
 const { sendGmailEmail } = require('./utils/gmailClient');
-const { createOrderConfirmationEmail } = require('./utils/emailTemplates');
+const { createOrderConfirmationEmail, createAdminOrderNotificationEmail } = require('./utils/emailTemplates');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -36,6 +36,8 @@ const PRODUCTS = {
 };
 
 const SHIPPING_FEE_INDIA = 10000;
+const SHIPPING_FEE_WORLDWIDE = 50000;
+const ADMIN_EMAILS = ['dhar.e2@gmail.com', 'gulmehak201984@gmail.com'];
 
 const pendingOrders = new Map();
 
@@ -386,9 +388,9 @@ app.post('/api/cart/checkout', async (req, res) => {
   let shippingFee = 0;
   if (shippingAddress.mode === 'manual') {
     const addressLower = shippingAddress.fullAddress.toLowerCase();
-    shippingFee = addressLower.includes('india') ? SHIPPING_FEE_INDIA : 0;
+    shippingFee = addressLower.includes('india') ? SHIPPING_FEE_INDIA : SHIPPING_FEE_WORLDWIDE;
   } else {
-    shippingFee = shippingAddress.country.toLowerCase() === 'india' ? SHIPPING_FEE_INDIA : 0;
+    shippingFee = shippingAddress.country.toLowerCase() === 'india' ? SHIPPING_FEE_INDIA : SHIPPING_FEE_WORLDWIDE;
   }
 
   const totalAmount = subtotal + shippingFee;
@@ -478,9 +480,9 @@ app.post('/api/create-order', async (req, res) => {
   if (shippingAddress.mode === 'manual') {
     // For manual addresses, check if "India" appears in the address
     const addressLower = shippingAddress.fullAddress.toLowerCase();
-    shippingFee = addressLower.includes('india') ? SHIPPING_FEE_INDIA : 0;
+    shippingFee = addressLower.includes('india') ? SHIPPING_FEE_INDIA : SHIPPING_FEE_WORLDWIDE;
   } else {
-    shippingFee = shippingAddress.country.toLowerCase() === 'india' ? SHIPPING_FEE_INDIA : 0;
+    shippingFee = shippingAddress.country.toLowerCase() === 'india' ? SHIPPING_FEE_INDIA : SHIPPING_FEE_WORLDWIDE;
   }
   
   const totalAmount = (product.price * orderQuantity) + shippingFee;
@@ -624,6 +626,45 @@ app.post('/api/verify-payment', async (req, res) => {
     } catch (emailError) {
       console.error('Failed to send order confirmation email:', emailError);
       // Don't fail the payment verification if email fails
+    }
+
+    // Send admin notification emails
+    try {
+      const adminEmailData = {
+        customerName: pendingOrder.shippingAddress.name,
+        customerEmail: pendingOrder.shippingAddress.email,
+        customerPhone: pendingOrder.shippingAddress.phone,
+        productName: pendingOrder.orderType === 'cart' 
+          ? pendingOrder.items.map(item => `${item.productName} x ${item.quantity}`).join(', ')
+          : pendingOrder.productName,
+        subtotal: pendingOrder.orderType === 'cart' 
+          ? pendingOrder.subtotal 
+          : (pendingOrder.productPrice * pendingOrder.quantity),
+        quantity: pendingOrder.orderType === 'cart' 
+          ? pendingOrder.items.reduce((sum, item) => sum + item.quantity, 0)
+          : pendingOrder.quantity,
+        shippingFee: pendingOrder.shippingFee,
+        totalAmount: pendingOrder.amount,
+        orderId: razorpay_order_id,
+        paymentId: razorpay_payment_id,
+        shippingAddress: pendingOrder.shippingAddress
+      };
+      
+      const { htmlContent: adminHtml, textContent: adminText } = createAdminOrderNotificationEmail(adminEmailData);
+      
+      // Send to all admin emails
+      for (const adminEmail of ADMIN_EMAILS) {
+        await sendGmailEmail({
+          to: adminEmail,
+          subject: `New Order Received - ${pendingOrder.shippingAddress.name} - GulMehak`,
+          html: adminHtml,
+          text: adminText
+        });
+        console.log('Admin notification email sent to:', adminEmail);
+      }
+    } catch (adminEmailError) {
+      console.error('Failed to send admin notification emails:', adminEmailError);
+      // Don't fail the payment verification if admin email fails
     }
 
     res.json({ success: true, message: 'Payment verified successfully' });

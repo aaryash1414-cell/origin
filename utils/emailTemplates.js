@@ -203,4 +203,192 @@ Thank you for choosing GulMehak!
   return { htmlContent, textContent };
 }
 
-module.exports = { createOrderConfirmationEmail };
+function createAdminOrderNotificationEmail(orderData) {
+  const {
+    customerName,
+    customerEmail,
+    customerPhone,
+    productName,
+    subtotal,
+    quantity,
+    shippingFee,
+    totalAmount,
+    orderId,
+    paymentId,
+    shippingAddress
+  } = orderData;
+  
+  const qty = quantity || 1;
+  
+  const addressText = shippingAddress.mode === 'manual' 
+    ? shippingAddress.fullAddress
+    : `${shippingAddress.address}, ${shippingAddress.city}, ${shippingAddress.state} ${shippingAddress.zip}, ${shippingAddress.country}`;
+  
+  const htmlContent = `
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      line-height: 1.6;
+      color: #2b2b2b;
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    .header {
+      background-color: #6b2d2d;
+      color: white;
+      padding: 20px;
+      text-align: center;
+      border-radius: 8px 8px 0 0;
+    }
+    .content {
+      background-color: #f5f5f5;
+      padding: 20px;
+      border-radius: 0 0 8px 8px;
+    }
+    .section {
+      background-color: white;
+      padding: 15px;
+      margin: 10px 0;
+      border-radius: 5px;
+      border-left: 4px solid #6b2d2d;
+    }
+    .section-title {
+      font-weight: bold;
+      color: #6b2d2d;
+      margin-bottom: 10px;
+      font-size: 16px;
+    }
+    .detail-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 5px 0;
+      border-bottom: 1px solid #eee;
+    }
+    .detail-row:last-child {
+      border-bottom: none;
+    }
+    .label {
+      font-weight: bold;
+      color: #555;
+    }
+    .value {
+      color: #333;
+    }
+    .total-row {
+      background-color: #6b2d2d;
+      color: white;
+      padding: 10px 15px;
+      border-radius: 5px;
+      margin-top: 15px;
+      display: flex;
+      justify-content: space-between;
+      font-size: 18px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h2>New Order Received!</h2>
+    <p>Order ID: ${orderId}</p>
+  </div>
+  
+  <div class="content">
+    <div class="section">
+      <div class="section-title">Customer Details</div>
+      <div class="detail-row">
+        <span class="label">Name:</span>
+        <span class="value">${customerName}</span>
+      </div>
+      <div class="detail-row">
+        <span class="label">Email:</span>
+        <span class="value">${customerEmail}</span>
+      </div>
+      <div class="detail-row">
+        <span class="label">Phone:</span>
+        <span class="value">${customerPhone}</span>
+      </div>
+    </div>
+    
+    <div class="section">
+      <div class="section-title">Shipping Address</div>
+      <p style="margin: 0; white-space: pre-line;">${addressText}</p>
+    </div>
+    
+    <div class="section">
+      <div class="section-title">Order Details</div>
+      <div class="detail-row">
+        <span class="label">Products:</span>
+        <span class="value">${productName}</span>
+      </div>
+      <div class="detail-row">
+        <span class="label">Quantity:</span>
+        <span class="value">${qty}</span>
+      </div>
+      <div class="detail-row">
+        <span class="label">Subtotal:</span>
+        <span class="value">Rs ${(subtotal / 100).toLocaleString('en-IN')}</span>
+      </div>
+      <div class="detail-row">
+        <span class="label">Shipping Fee:</span>
+        <span class="value">Rs ${(shippingFee / 100).toLocaleString('en-IN')}</span>
+      </div>
+    </div>
+    
+    <div class="total-row">
+      <span>Total Amount:</span>
+      <span>Rs ${(totalAmount / 100).toLocaleString('en-IN')}</span>
+    </div>
+    
+    <div class="section" style="margin-top: 15px;">
+      <div class="section-title">Payment Details</div>
+      <div class="detail-row">
+        <span class="label">Payment ID:</span>
+        <span class="value">${paymentId}</span>
+      </div>
+      <div class="detail-row">
+        <span class="label">Status:</span>
+        <span class="value" style="color: green; font-weight: bold;">PAID</span>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
+  `;
+  
+  const textContent = `
+NEW ORDER RECEIVED!
+====================
+
+Order ID: ${orderId}
+Payment ID: ${paymentId}
+Status: PAID
+
+CUSTOMER DETAILS
+-----------------
+Name: ${customerName}
+Email: ${customerEmail}
+Phone: ${customerPhone}
+
+SHIPPING ADDRESS
+-----------------
+${addressText}
+
+ORDER DETAILS
+--------------
+Products: ${productName}
+Quantity: ${qty}
+Subtotal: Rs ${(subtotal / 100).toLocaleString('en-IN')}
+Shipping Fee: Rs ${(shippingFee / 100).toLocaleString('en-IN')}
+--------------
+TOTAL: Rs ${(totalAmount / 100).toLocaleString('en-IN')}
+  `;
+  
+  return { htmlContent, textContent };
+}
+
+module.exports = { createOrderConfirmationEmail, createAdminOrderNotificationEmail };

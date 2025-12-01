@@ -5,9 +5,8 @@ const path = require('path');
 async function sendExampleOrderEmail() {
   const recipientEmail = 'nishankn.ankita@gmail.com';
   
-  // Product details
   const product = {
-    name: 'Banarasi Sari',
+    name: 'Kashmiri Coat',
     price: 3000,
     quantity: 1
   };
@@ -15,7 +14,6 @@ async function sendExampleOrderEmail() {
   const shippingFee = 100;
   const total = product.price + shippingFee;
   
-  // Read logo and convert to base64
   const logoPath = path.join(__dirname, 'attached_assets/IMG_0339_1762661100334.jpeg');
   let logoBase64 = '';
   
@@ -26,7 +24,6 @@ async function sendExampleOrderEmail() {
     console.log('Could not read logo file, continuing without it');
   }
   
-  // Create HTML email content with logo
   const htmlContent = `
 <!DOCTYPE html>
 <html>
@@ -97,42 +94,52 @@ async function sendExampleOrderEmail() {
     ${logoBase64 ? `<img src="data:image/jpeg;base64,${logoBase64}" alt="GulMehak Logo" class="logo">` : '<h1 style="font-family: Georgia, serif; color: #6b2d2d; letter-spacing: 2px;">GULMEHAK</h1>'}
   </div>
   
-  <h2 class="title">Order Confirmation - Example</h2>
+  <h2 class="title">Order Confirmation</h2>
   
   <p>Dear Valued Customer,</p>
   
-  <p>Thank you for your order! This is an example of what your order confirmation email will look like.</p>
+  <p>Thank you for your order! We're excited to bring you this beautiful Kashmiri Coat from our premium collection.</p>
   
   <div class="order-details">
     <h3 style="margin-top: 0; color: #6b2d2d;">Order Details</h3>
+    <p style="margin: 5px 0;"><strong>Order ID:</strong> TEST-ORDER-${Date.now()}</p>
     
     <div class="product-item">
       <div class="product-name">${product.name}</div>
       <div style="display: flex; justify-content: space-between; margin-top: 10px;">
         <span>Quantity: ${product.quantity}</span>
-        <span class="price">₹${product.price.toLocaleString('en-IN')}</span>
+        <span class="price">Rs ${product.price.toLocaleString('en-IN')}</span>
       </div>
     </div>
     
     <div style="margin-top: 15px;">
       <div style="display: flex; justify-content: space-between; padding: 5px 0;">
         <span>Subtotal:</span>
-        <span>₹${product.price.toLocaleString('en-IN')}</span>
+        <span>Rs ${product.price.toLocaleString('en-IN')}</span>
       </div>
       <div style="display: flex; justify-content: space-between; padding: 5px 0;">
         <span>Shipping Fee:</span>
-        <span>₹${shippingFee.toLocaleString('en-IN')}</span>
+        <span>Rs ${shippingFee.toLocaleString('en-IN')}</span>
       </div>
     </div>
     
     <div class="total">
-      Total: ₹${total.toLocaleString('en-IN')}
+      Total: Rs ${total.toLocaleString('en-IN')}
     </div>
   </div>
   
-  <p>Your order will be carefully packaged and shipped to you soon. We'll send you a tracking number once it's on its way.</p>
+  <div style="background-color: #fff; padding: 15px; border-left: 3px solid #6b2d2d; margin: 15px 0;">
+    <h4 style="margin-top: 0; color: #6b2d2d;">Shipping Address:</h4>
+    <p style="margin: 5px 0;">Test Customer</p>
+    <p style="margin: 5px 0;">123 Test Street</p>
+    <p style="margin: 5px 0;">New Delhi, Delhi 110001</p>
+    <p style="margin: 5px 0;">India</p>
+    <p style="margin: 5px 0;">Phone: +91 9876543210</p>
+  </div>
   
-  <p>If you have any questions about your order, please don't hesitate to contact us.</p>
+  <p>Your beautiful Kashmiri Coat will be carefully packaged and shipped to you soon. We'll send you a tracking number once it's on its way.</p>
+  
+  <p>If you have any questions about your order, please don't hesitate to contact us at <a href="mailto:gulmehak201984@gmail.com" style="color: #6b2d2d;">gulmehak201984@gmail.com</a></p>
   
   <div class="footer">
     <p><strong>GulMehak</strong><br>
@@ -143,28 +150,36 @@ async function sendExampleOrderEmail() {
 </html>
   `;
   
-  // Plain text version
   const textContent = `
-Order Confirmation - Example
+Order Confirmation
 
 Dear Valued Customer,
 
-Thank you for your order! This is an example of what your order confirmation email will look like.
+Thank you for your order! We're excited to bring you this beautiful Kashmiri Coat from our premium collection.
 
 ORDER DETAILS
 --------------
+Order ID: TEST-ORDER-${Date.now()}
+
 Product: ${product.name}
 Quantity: ${product.quantity}
-Price: ₹${product.price.toLocaleString('en-IN')}
+Price: Rs ${product.price.toLocaleString('en-IN')}
 
-Subtotal: ₹${product.price.toLocaleString('en-IN')}
-Shipping Fee: ₹${shippingFee.toLocaleString('en-IN')}
+Subtotal: Rs ${product.price.toLocaleString('en-IN')}
+Shipping Fee: Rs ${shippingFee.toLocaleString('en-IN')}
 --------------
-TOTAL: ₹${total.toLocaleString('en-IN')}
+TOTAL: Rs ${total.toLocaleString('en-IN')}
 
-Your order will be carefully packaged and shipped to you soon. We'll send you a tracking number once it's on its way.
+SHIPPING ADDRESS:
+Test Customer
+123 Test Street
+New Delhi, Delhi 110001
+India
+Phone: +91 9876543210
 
-If you have any questions about your order, please don't hesitate to contact us.
+Your beautiful Kashmiri Coat will be carefully packaged and shipped to you soon. We'll send you a tracking number once it's on its way.
+
+If you have any questions about your order, please don't hesitate to contact us at gulmehak201984@gmail.com
 
 GulMehak
 Premium Traditional Indian Garments
@@ -172,26 +187,25 @@ Thank you for choosing GulMehak!
   `;
   
   try {
-    console.log('Sending example order confirmation email...');
+    console.log('Sending Kashmiri Coat order confirmation email to:', recipientEmail);
     
     const result = await sendGmailEmail({
       to: recipientEmail,
-      subject: 'Example Order Confirmation - GulMehak',
+      subject: 'Order Confirmation - Kashmiri Coat - GulMehak',
       html: htmlContent,
       text: textContent
     });
     
-    console.log('✓ Email sent successfully!');
+    console.log('Email sent successfully!');
     console.log('Accepted:', result.accepted);
     console.log('Message ID:', result.messageId);
     
   } catch (error) {
-    console.error('✗ Failed to send email:', error.message);
+    console.error('Failed to send email:', error.message);
     throw error;
   }
 }
 
-// Run the function
 sendExampleOrderEmail()
   .then(() => {
     console.log('\nEmail sending completed!');
