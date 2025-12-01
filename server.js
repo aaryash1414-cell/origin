@@ -32,7 +32,8 @@ const PRODUCTS = {
   'kota-doria-sari': { name: 'Kota Doria Sari', price: 210000 },
   'kashmiri-sari': { name: 'Kashmiri Sari', price: 1100000 },
   'kashmiri-suit': { name: 'Kashmiri Suit', price: 350000 },
-  'shawl': { name: 'Shawl', price: 450000 }
+  'shawl': { name: 'Shawl', price: 450000 },
+  'banarsi-cotton-chanderi-suit': { name: 'Banarsi Cotton Chanderi Suit', price: 160000 }
 };
 
 const SHIPPING_FEE_INDIA = 10000;

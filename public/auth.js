@@ -11,7 +11,8 @@ const PRODUCTS_DATA = {
   'kota-doria-sari': { name: 'Kota Doria Sari', price: 2100, description: 'Light and airy Kota Doria sari with delicate patterns. Comfortable yet elegant for everyday wear.', image: 'kota-doria-sari.jpeg' },
   'kashmiri-sari': { name: 'Kashmiri Sari', price: 11000, description: 'Premium Kashmiri sari with exquisite hand embroidery. A luxurious statement piece for special occasions.', image: 'kashmiri-sari.jpeg' },
   'kashmiri-suit': { name: 'Kashmiri Suit', price: 3500, description: 'Elegant Kashmiri suit with delicate embroidery and premium fabric. Comfort meets sophistication in this piece.', image: 'kashmiri-suit.jpeg' },
-  'shawl': { name: 'Shawl', price: 4500, description: 'Premium quality shawl with traditional patterns. Perfect accessory for any outfit.', image: 'shawl.jpeg' }
+  'shawl': { name: 'Shawl', price: 4500, description: 'Premium quality shawl with traditional patterns. Perfect accessory for any outfit.', image: 'shawl.jpeg' },
+  'banarsi-cotton-chanderi-suit': { name: 'Banarsi Cotton Chanderi Suit', price: 1600, description: 'Elegant Banarsi Cotton Chanderi suit with beautiful zari weaving and embroidery on dupatta. A perfect blend of tradition and comfort.', image: 'banarsi-cotton-chanderi-suit.jpeg' }
 };
 
 function showMainView() {
