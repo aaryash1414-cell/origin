@@ -496,16 +496,6 @@ footer {
   overflow: hidden;
 }
 
-.product-card-large .product-image-container {
-  height: 600px;
-}
-
-@media (max-width: 768px) {
-  .product-card-large .product-image-container {
-    height: 400px;
-  }
-}
-
 .modal {
   display: none;
   position: fixed;
