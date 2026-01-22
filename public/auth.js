@@ -20,13 +20,39 @@ function updateProductColor(productId, colorIndex, imageUrl, element) {
     img.src = imageUrl;
   }
   
-  // Update active circle
-  const card = document.getElementById(`${productId}-card`);
-  if (card) {
-    const circles = card.querySelectorAll('.color-circle');
-    circles.forEach(c => c.classList.remove('active'));
-    element.classList.add('active');
+  // Also update shop image if this is the featured card or vice-versa
+  if (productId === 'featured-banarasi-linen') {
+    const shopImg = document.getElementById('banarasi-linen-img');
+    if (shopImg) shopImg.src = imageUrl;
+    
+    // Sync circles in shop
+    const shopCard = document.getElementById('banarasi-linen-card');
+    if (shopCard) {
+      const circles = shopCard.querySelectorAll('.color-circle');
+      circles.forEach((c, idx) => {
+        if (idx === colorIndex) c.classList.add('active');
+        else c.classList.remove('active');
+      });
+    }
+  } else if (productId === 'banarasi-linen') {
+    const featuredImg = document.getElementById('featured-banarasi-linen-img');
+    if (featuredImg) featuredImg.src = imageUrl;
+
+    // Sync circles in featured
+    const featuredCard = document.querySelector('.featured-card[onclick*="banarasi-linen"]');
+    if (featuredCard) {
+      const circles = featuredCard.querySelectorAll('.color-circle');
+      circles.forEach((c, idx) => {
+        if (idx === colorIndex) c.classList.add('active');
+        else c.classList.remove('active');
+      });
+    }
   }
+  
+  // Update active circle
+  const circles = element.parentElement.querySelectorAll('.color-circle');
+  circles.forEach(c => c.classList.remove('active'));
+  element.classList.add('active');
 }
 
 function scrollToSection(sectionId) {

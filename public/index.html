@@ -49,14 +49,21 @@
             </div>
           </div>
 
-          <div class="featured-card" onclick="buyProduct('banarasi-sari')">
+          <div class="featured-card" onclick="buyProduct('banarasi-linen')">
             <div class="featured-image">
-              <img src="banarasi-sari.jpeg" alt="Banarasi Sari">
+              <img src="banarasi-linen-green.jpeg" alt="Exclusive Festive Banarasi Linen Set" id="featured-banarasi-linen-img">
             </div>
             <div class="featured-info">
-              <h3>Banarasi Sari</h3>
-              <p class="featured-description">Exquisite Banarasi silk sari with traditional brocade work. A masterpiece of Indian craftsmanship and heritage.</p>
-              <p class="featured-price">₹3,000</p>
+              <h3>Banarasi Linen Set</h3>
+              <p class="featured-description">Exclusive Festive Collection: Linen dupion booti top, jaal contrast dye dupatta, and cotton silk bottom. Each 2.50 mtr.</p>
+              <div class="color-options" onclick="event.stopPropagation()" style="margin-bottom: 1.5rem; justify-content: flex-start;">
+                <div class="color-circle active" style="background-color: #9eb25d;" onclick="updateProductColor('featured-banarasi-linen', 0, 'banarasi-linen-green.jpeg', this)" title="Green"></div>
+                <div class="color-circle" style="background-color: #e3c52d;" onclick="updateProductColor('featured-banarasi-linen', 1, 'banarasi-linen-yellow.jpeg', this)" title="Yellow"></div>
+                <div class="color-circle" style="background-color: #a682bc;" onclick="updateProductColor('featured-banarasi-linen', 2, 'banarasi-linen-purple.jpeg', this)" title="Purple"></div>
+                <div class="color-circle" style="background-color: #7a8291;" onclick="updateProductColor('featured-banarasi-linen', 3, 'banarasi-linen-grey.jpeg', this)" title="Grey"></div>
+                <div class="color-circle" style="background-color: #e89a8a;" onclick="updateProductColor('featured-banarasi-linen', 4, 'banarasi-linen-peach.jpeg', this)" title="Peach"></div>
+              </div>
+              <p class="featured-price">₹1,899</p>
               <button class="featured-buy-button">View Details</button>
             </div>
           </div>
