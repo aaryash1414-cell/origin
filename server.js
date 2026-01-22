@@ -337,6 +337,48 @@ app.post('/api/verify-payment', async (req, res) => {
       });
 
       console.log('Order confirmation email sent to:', pendingOrder.shippingAddress.email);
+
+      // Send notification to owner (Epsit)
+      try {
+        await sendGmailEmail({
+          to: 'dhar.e2@gmail.com',
+          subject: `New Order Received - ${pendingOrder.productName}`,
+          html: `
+            <h2>New Order Received</h2>
+            <p><strong>Order ID:</strong> ${razorpay_order_id}</p>
+            <p><strong>Customer Name:</strong> ${pendingOrder.shippingAddress.name}</p>
+            <p><strong>Customer Email:</strong> ${pendingOrder.shippingAddress.email}</p>
+            <p><strong>Product:</strong> ${pendingOrder.productName}</p>
+            <p><strong>Quantity:</strong> ${pendingOrder.quantity}</p>
+            <p><strong>Total Amount:</strong> ₹${(pendingOrder.amount / 100).toLocaleString('en-IN')}</p>
+            <h3>Shipping Address:</h3>
+            <p>${pendingOrder.shippingAddress.mode === 'manual' 
+              ? pendingOrder.shippingAddress.fullAddress.replace(/\n/g, '<br>')
+              : `${pendingOrder.shippingAddress.address}<br>${pendingOrder.shippingAddress.city}, ${pendingOrder.shippingAddress.state} ${pendingOrder.shippingAddress.zip}<br>${pendingOrder.shippingAddress.country}`
+            }</p>
+            <p><strong>Phone:</strong> ${pendingOrder.shippingAddress.phone}</p>
+          `,
+          text: `
+            New Order Received
+            Order ID: ${razorpay_order_id}
+            Customer Name: ${pendingOrder.shippingAddress.name}
+            Customer Email: ${pendingOrder.shippingAddress.email}
+            Product: ${pendingOrder.productName}
+            Quantity: ${pendingOrder.quantity}
+            Total Amount: ₹${(pendingOrder.amount / 100).toLocaleString('en-IN')}
+            
+            Shipping Address:
+            ${pendingOrder.shippingAddress.mode === 'manual' 
+              ? pendingOrder.shippingAddress.fullAddress
+              : `${pendingOrder.shippingAddress.address}\n${pendingOrder.shippingAddress.city}, ${pendingOrder.shippingAddress.state} ${pendingOrder.shippingAddress.zip}\n${pendingOrder.shippingAddress.country}`
+            }
+            Phone: ${pendingOrder.shippingAddress.phone}
+          `
+        });
+        console.log('Owner notification email sent to: dhar.e2@gmail.com');
+      } catch (ownerEmailError) {
+        console.error('Failed to send owner notification email:', ownerEmailError);
+      }
     } catch (emailError) {
       console.error('Failed to send order confirmation email:', emailError);
       // Don't fail the payment verification if email fails
