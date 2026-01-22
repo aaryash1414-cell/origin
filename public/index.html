@@ -125,6 +125,21 @@
         <h2>Our Collection</h2>
       </div>
       <div class="products-grid">
+        <div class="product-card product-card-large" id="banarasi-linen-card" onclick="buyProduct('banarasi-linen')">
+          <div class="product-image-container">
+            <img src="banarasi-linen-green.jpeg" alt="Banarasi Linen Set" id="banarasi-linen-img">
+          </div>
+          <h3>EXCLUSIVE FESTIVE BANARASI LINEN SET</h3>
+          <p class="price">₹1,899</p>
+          <div class="color-options" onclick="event.stopPropagation()">
+            <div class="color-circle active" style="background-color: #9eb25d;" onclick="updateProductColor('banarasi-linen', 0, 'banarasi-linen-green.jpeg', this)" title="Green"></div>
+            <div class="color-circle" style="background-color: #e3c52d;" onclick="updateProductColor('banarasi-linen', 1, 'banarasi-linen-yellow.jpeg', this)" title="Yellow"></div>
+            <div class="color-circle" style="background-color: #a682bc;" onclick="updateProductColor('banarasi-linen', 2, 'banarasi-linen-purple.jpeg', this)" title="Purple"></div>
+            <div class="color-circle" style="background-color: #7a8291;" onclick="updateProductColor('banarasi-linen', 3, 'banarasi-linen-grey.jpeg', this)" title="Grey"></div>
+            <div class="color-circle" style="background-color: #e89a8a;" onclick="updateProductColor('banarasi-linen', 4, 'banarasi-linen-peach.jpeg', this)" title="Peach"></div>
+          </div>
+          <button class="buy-button">BUY NOW</button>
+        </div>
         <div class="product-card" onclick="buyProduct('kashmiri-coat')">
           <img src="kashmiri-coat.jpeg" alt="Kashmiri Coat">
           <h3>KASHMIRI COAT</h3>

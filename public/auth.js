@@ -13,6 +13,22 @@ function showProductsView() {
   window.scrollTo(0, 0);
 }
 
+function updateProductColor(productId, colorIndex, imageUrl, element) {
+  // Update main image
+  const img = document.getElementById(`${productId}-img`);
+  if (img) {
+    img.src = imageUrl;
+  }
+  
+  // Update active circle
+  const card = document.getElementById(`${productId}-card`);
+  if (card) {
+    const circles = card.querySelectorAll('.color-circle');
+    circles.forEach(c => c.classList.remove('active'));
+    element.classList.add('active');
+  }
+}
+
 function scrollToSection(sectionId) {
   setTimeout(() => {
     const section = document.getElementById(sectionId);

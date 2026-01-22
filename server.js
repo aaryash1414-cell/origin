@@ -31,7 +31,18 @@ const PRODUCTS = {
   'kota-doria-sari': { name: 'Kota Doria Sari', price: 210000 },
   'kashmiri-sari': { name: 'Kashmiri Sari', price: 1100000 },
   'kashmiri-suit': { name: 'Kashmiri Suit', price: 350000 },
-  'shawl': { name: 'Shawl', price: 450000 }
+  'shawl': { name: 'Shawl', price: 450000 },
+  'banarasi-linen': { 
+    name: 'Exclusive Festive Banarasi Linen Set', 
+    price: 189900,
+    colors: [
+      { name: 'Green', image: 'banarasi-linen-green.jpeg', hex: '#9eb25d' },
+      { name: 'Yellow', image: 'banarasi-linen-yellow.jpeg', hex: '#e3c52d' },
+      { name: 'Purple', image: 'banarasi-linen-purple.jpeg', hex: '#a682bc' },
+      { name: 'Grey', image: 'banarasi-linen-grey.jpeg', hex: '#7a8291' },
+      { name: 'Peach', image: 'banarasi-linen-peach.jpeg', hex: '#e89a8a' }
+    ]
+  }
 };
 
 const SHIPPING_FEE_INDIA = 10000;
