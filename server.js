@@ -205,10 +205,17 @@ app.post('/api/create-order', async (req, res) => {
     return res.status(503).json({ error: 'Payment system not configured' });
   }
 
-  const { productId, shippingAddress, quantity } = req.body;
+  const { productId, shippingAddress, quantity, selectedColor } = req.body;
 
   if (!productId || !PRODUCTS[productId]) {
     return res.status(400).json({ error: 'Invalid product' });
+  }
+
+  const product = PRODUCTS[productId];
+  
+  // Validate color if product has colors
+  if (product.colors && !selectedColor) {
+    return res.status(400).json({ error: 'Please select a color' });
   }
 
   if (!shippingAddress || !shippingAddress.name || !shippingAddress.email || !shippingAddress.phone) {
@@ -232,8 +239,6 @@ app.post('/api/create-order', async (req, res) => {
     return res.status(400).json({ error: 'Quantity must be between 1 and 10' });
   }
 
-  const product = PRODUCTS[productId];
-  
   // Determine shipping fee based on country
   let shippingFee = 0;
   if (shippingAddress.mode === 'manual') {
@@ -265,6 +270,7 @@ app.post('/api/create-order', async (req, res) => {
       productName: product.name,
       productPrice: product.price,
       quantity: orderQuantity,
+      selectedColor: selectedColor || null,
       shippingFee,
       amount: totalAmount,
       shippingAddress,
@@ -313,6 +319,7 @@ app.post('/api/verify-payment', async (req, res) => {
       productName: pendingOrder.productName,
       productPrice: pendingOrder.productPrice,
       quantity: pendingOrder.quantity,
+      selectedColor: pendingOrder.selectedColor,
       shippingFee: pendingOrder.shippingFee,
       amount: pendingOrder.amount,
       shippingAddress: pendingOrder.shippingAddress,
@@ -334,6 +341,7 @@ app.post('/api/verify-payment', async (req, res) => {
         productName: pendingOrder.productName,
         productPrice: pendingOrder.productPrice,
         quantity: pendingOrder.quantity,
+        selectedColor: pendingOrder.selectedColor,
         shippingFee: pendingOrder.shippingFee,
         totalAmount: pendingOrder.amount,
         orderId: razorpay_order_id,
@@ -360,6 +368,7 @@ app.post('/api/verify-payment', async (req, res) => {
             <p><strong>Customer Name:</strong> ${pendingOrder.shippingAddress.name}</p>
             <p><strong>Customer Email:</strong> ${pendingOrder.shippingAddress.email}</p>
             <p><strong>Product:</strong> ${pendingOrder.productName}</p>
+            ${pendingOrder.selectedColor ? `<p><strong>Color:</strong> ${pendingOrder.selectedColor}</p>` : ''}
             <p><strong>Quantity:</strong> ${pendingOrder.quantity}</p>
             <p><strong>Total Amount:</strong> ₹${(pendingOrder.amount / 100).toLocaleString('en-IN')}</p>
             <h3>Shipping Address:</h3>
@@ -375,6 +384,7 @@ app.post('/api/verify-payment', async (req, res) => {
             Customer Name: ${pendingOrder.shippingAddress.name}
             Customer Email: ${pendingOrder.shippingAddress.email}
             Product: ${pendingOrder.productName}
+            ${pendingOrder.selectedColor ? `Color: ${pendingOrder.selectedColor}` : ''}
             Quantity: ${pendingOrder.quantity}
             Total Amount: ₹${(pendingOrder.amount / 100).toLocaleString('en-IN')}
             
@@ -398,6 +408,85 @@ app.post('/api/verify-payment', async (req, res) => {
     res.json({ success: true, message: 'Payment verified successfully' });
   } else {
     res.status(400).json({ error: 'Invalid payment signature' });
+  }
+});
+
+app.post('/api/send-sample-emails', async (req, res) => {
+  const { toEmail } = req.body;
+  if (!toEmail) return res.status(400).json({ error: 'Email required' });
+
+  const sampleOrderData = {
+    customerName: 'Ankita',
+    productName: 'Exclusive Festive Banarasi Linen Set',
+    productPrice: 189900,
+    quantity: 1,
+    selectedColor: 'Green',
+    shippingFee: 10000,
+    totalAmount: 199900,
+    orderId: 'sample_order_' + Date.now(),
+    shippingAddress: {
+      name: 'Ankita',
+      email: toEmail,
+      phone: '1234567890',
+      mode: 'structured',
+      address: 'Sample Street 123',
+      city: 'Delhi',
+      state: 'Delhi',
+      zip: '110001',
+      country: 'India'
+    }
+  };
+
+  try {
+    const { htmlContent, textContent } = createOrderConfirmationEmail(sampleOrderData);
+
+    // 1. Send customer confirmation sample
+    await sendGmailEmail({
+      to: toEmail,
+      subject: 'Order Confirmation - GulMehak (Sample)',
+      html: htmlContent,
+      text: textContent
+    });
+
+    // 2. Send owner notification sample
+    await sendGmailEmail({
+      to: toEmail,
+      subject: `New Order Received - ${sampleOrderData.productName} (Sample)`,
+      html: `
+        <h2>New Order Received (Sample Notification)</h2>
+        <p><strong>Order ID:</strong> ${sampleOrderData.orderId}</p>
+        <p><strong>Customer Name:</strong> ${sampleOrderData.customerName}</p>
+        <p><strong>Customer Email:</strong> ${sampleOrderData.shippingAddress.email}</p>
+        <p><strong>Product:</strong> ${sampleOrderData.productName}</p>
+        <p><strong>Color:</strong> ${sampleOrderData.selectedColor}</p>
+        <p><strong>Quantity:</strong> ${sampleOrderData.quantity}</p>
+        <p><strong>Total Amount:</strong> ₹${(sampleOrderData.totalAmount / 100).toLocaleString('en-IN')}</p>
+        <h3>Shipping Address:</h3>
+        <p>Sample Street 123<br>Delhi, Delhi 110001<br>India</p>
+        <p><strong>Phone:</strong> ${sampleOrderData.shippingAddress.phone}</p>
+      `,
+      text: `
+        New Order Received (Sample Notification)
+        Order ID: ${sampleOrderData.orderId}
+        Customer Name: ${sampleOrderData.customerName}
+        Customer Email: ${sampleOrderData.shippingAddress.email}
+        Product: ${sampleOrderData.productName}
+        Color: ${sampleOrderData.selectedColor}
+        Quantity: ${sampleOrderData.quantity}
+        Total Amount: ₹${(sampleOrderData.totalAmount / 100).toLocaleString('en-IN')}
+        
+        Shipping Address:
+        Sample Street 123
+        Delhi, Delhi 110001
+        India
+        Phone: ${sampleOrderData.shippingAddress.phone}
+      `
+    });
+
+    res.json({ success: true, message: 'Sample emails sent to ' + toEmail });
+  } catch (error) {
+    console.error('Failed to send sample emails:', error);
+    res.status(500).json({ error: 'Failed to send sample emails' });
   }
 });
 

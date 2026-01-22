@@ -18,6 +18,7 @@ function createOrderConfirmationEmail(orderData) {
     productName,
     productPrice,
     quantity,
+    selectedColor,
     shippingFee,
     totalAmount,
     orderId,
@@ -116,6 +117,7 @@ function createOrderConfirmationEmail(orderData) {
     
     <div class="product-item">
       <div class="product-name">${productName}</div>
+      ${selectedColor ? `<div style="margin-top: 5px; color: #666;">Color: ${selectedColor}</div>` : ''}
       <div style="display: flex; justify-content: space-between; margin-top: 10px;">
         <span>Unit Price: ₹${(productPrice / 100).toLocaleString('en-IN')}</span>
         <span>Quantity: ${qty}</span>
@@ -175,6 +177,7 @@ ORDER DETAILS
 Order ID: ${orderId}
 
 Product: ${productName}
+${selectedColor ? `Color: ${selectedColor}` : ''}
 Unit Price: ₹${(productPrice / 100).toLocaleString('en-IN')}
 Quantity: ${qty}
 

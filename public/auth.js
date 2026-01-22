@@ -13,11 +13,20 @@ function showProductsView() {
   window.scrollTo(0, 0);
 }
 
+let currentProductId = null;
+let currentSelectedColor = null;
+let currentAddressMode = 'structured';
+
 function updateProductColor(productId, colorIndex, imageUrl, element) {
   // Update main image
   const img = document.getElementById(`${productId}-img`);
   if (img) {
     img.src = imageUrl;
+  }
+  
+  // Update current selected color if it's the product being viewed
+  if (productId.includes('banarasi-linen')) {
+    currentSelectedColor = element.getAttribute('title');
   }
   
   // Also update shop image if this is the featured card or vice-versa
@@ -74,9 +83,6 @@ async function getRazorpayKey() {
   }
 }
 
-let currentProductId = null;
-let currentAddressMode = 'structured';
-
 function switchAddressMode(mode) {
   currentAddressMode = mode;
   const structuredFields = document.getElementById('structuredAddressFields');
@@ -113,6 +119,16 @@ function handleCountryChange() {
 
 function showAddressModal(productId) {
   currentProductId = productId;
+  
+  // Reset selected color for new product if it has colors
+  if (productId === 'banarasi-linen') {
+    // Get active color from the shop view circles
+    const activeCircle = document.querySelector('#banarasi-linen-card .color-circle.active');
+    currentSelectedColor = activeCircle ? activeCircle.getAttribute('title') : 'Green';
+  } else {
+    currentSelectedColor = null;
+  }
+  
   const modal = document.getElementById('addressModal');
   modal.style.display = 'block';
   
@@ -186,7 +202,7 @@ async function submitAddress(event) {
   }
 
   closeAddressModal();
-  await processPurchase(currentProductId, shippingAddress, quantity);
+  await processPurchase(currentProductId, shippingAddress, quantity, currentSelectedColor);
 }
 
 async function buyProduct(productId) {
@@ -198,12 +214,12 @@ async function buyProduct(productId) {
   showAddressModal(productId);
 }
 
-async function processPurchase(productId, shippingAddress, quantity) {
+async function processPurchase(productId, shippingAddress, quantity, selectedColor) {
   try {
     const orderResponse = await fetch('/api/create-order', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ productId, shippingAddress, quantity })
+      body: JSON.stringify({ productId, shippingAddress, quantity, selectedColor })
     });
 
     if (!orderResponse.ok) {
