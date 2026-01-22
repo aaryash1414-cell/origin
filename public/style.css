@@ -171,23 +171,13 @@ h1, h2, h3 {
 
 .featured-info {
   padding: 2rem 1.5rem;
-}
-
-.featured-info h3 {
-  font-size: 1.5rem;
-  color: #6b2d2d;
-  margin-bottom: 1rem;
-  font-weight: 500;
-}
-
-.featured-description {
-  font-size: 0.9rem;
-  color: #555;
-  line-height: 1.6;
-  margin-bottom: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 }
 
 .featured-price {
+  margin-top: auto;
   font-size: 1.4rem;
   color: #6b2d2d;
   font-weight: 600;
@@ -305,6 +295,9 @@ h1, h2, h3 {
   position: relative;
   overflow: hidden;
   cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 }
 
 .product-card-large {
@@ -333,6 +326,7 @@ h1, h2, h3 {
 }
 
 .product-card .price {
+  margin-top: auto;
   text-align: center;
   font-size: 1.1rem;
   font-weight: 500;
@@ -343,7 +337,7 @@ h1, h2, h3 {
 .buy-button {
   display: block;
   width: 80%;
-  margin: 0 auto;
+  margin: 0 auto 1.5rem;
   padding: 0.8rem 1.5rem;
   background-color: #6b2d2d;
   color: white;
@@ -469,6 +463,7 @@ footer {
   justify-content: center;
   gap: 0.8rem;
   margin-bottom: 1rem;
+  min-height: 24px;
 }
 
 .color-circle {
