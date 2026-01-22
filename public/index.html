@@ -280,7 +280,26 @@
             <input type="text" id="shippingName" placeholder="Full Name *">
             <input type="email" id="shippingEmail" placeholder="Email Address *">
           </div>
-          <input type="tel" id="shippingPhone" placeholder="Phone Number *" style="margin-bottom: 1rem;">
+          <div class="phone-input-container" style="display: flex; gap: 0.5rem; margin-bottom: 1rem;">
+            <select id="shippingCountryCode" style="width: 100px; padding: 0.9rem; border: 1px solid #ddd; border-radius: 5px; font-size: 0.95rem;">
+              <option value="+91">+91 (IN)</option>
+              <option value="+1">+1 (US/CA)</option>
+              <option value="+44">+44 (UK)</option>
+              <option value="+61">+61 (AU)</option>
+              <option value="+971">+971 (UAE)</option>
+              <option value="+65">+65 (SG)</option>
+              <option value="+49">+49 (DE)</option>
+              <option value="+33">+33 (FR)</option>
+              <option value="+81">+81 (JP)</option>
+              <option value="+82">+82 (KR)</option>
+              <option value="+966">+966 (SA)</option>
+              <option value="+974">+974 (QA)</option>
+              <option value="+965">+965 (KW)</option>
+              <option value="+968">+968 (OM)</option>
+              <option value="+973">+973 (BH)</option>
+            </select>
+            <input type="tel" id="shippingPhone" placeholder="Phone Number *" style="flex: 1; margin-bottom: 0;">
+          </div>
           <textarea id="shippingAddress" placeholder="Street Address *" rows="3"></textarea>
           <div class="form-row">
             <input type="text" id="shippingCity" placeholder="City *">
@@ -318,7 +337,26 @@
             <input type="text" id="manualName" placeholder="Full Name *">
             <input type="email" id="manualEmail" placeholder="Email Address *">
           </div>
-          <input type="tel" id="manualPhone" placeholder="Phone Number *" style="width: 100%; padding: 0.9rem; border: 1px solid #ddd; border-radius: 5px; font-size: 0.95rem; margin-bottom: 1rem;">
+          <div class="phone-input-container" style="display: flex; gap: 0.5rem; margin-bottom: 1rem;">
+            <select id="manualCountryCode" style="width: 100px; padding: 0.9rem; border: 1px solid #ddd; border-radius: 5px; font-size: 0.95rem;">
+              <option value="+91">+91 (IN)</option>
+              <option value="+1">+1 (US/CA)</option>
+              <option value="+44">+44 (UK)</option>
+              <option value="+61">+61 (AU)</option>
+              <option value="+971">+971 (UAE)</option>
+              <option value="+65">+65 (SG)</option>
+              <option value="+49">+49 (DE)</option>
+              <option value="+33">+33 (FR)</option>
+              <option value="+81">+81 (JP)</option>
+              <option value="+82">+82 (KR)</option>
+              <option value="+966">+966 (SA)</option>
+              <option value="+974">+974 (QA)</option>
+              <option value="+965">+965 (KW)</option>
+              <option value="+968">+968 (OM)</option>
+              <option value="+973">+973 (BH)</option>
+            </select>
+            <input type="tel" id="manualPhone" placeholder="Phone Number *" style="flex: 1; padding: 0.9rem; border: 1px solid #ddd; border-radius: 5px; font-size: 0.95rem; margin-bottom: 0;">
+          </div>
           <label style="display: block; margin-bottom: 0.5rem; font-weight: 500; color: #2b2b2b;">Complete Address:</label>
           <textarea id="manualFullAddress" placeholder="Please enter your complete address including:&#10;Street Address&#10;City, State/Province&#10;ZIP/Postal Code&#10;Country" rows="6" style="width: 100%; padding: 0.9rem; border: 1px solid #ddd; border-radius: 5px; font-size: 0.95rem; resize: vertical;"></textarea>
           <p style="font-size: 0.85rem; color: #666; margin-top: 0.5rem;">Enter your full delivery address with all details</p>

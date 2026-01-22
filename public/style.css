@@ -564,6 +564,19 @@ footer {
   border-color: #6b2d2d;
 }
 
+.phone-input-container select {
+  background-color: #f9f9f9;
+  cursor: pointer;
+  border-right: none;
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.phone-input-container input {
+  border-top-left-radius: 0 !important;
+  border-bottom-left-radius: 0 !important;
+}
+
 #addressForm textarea {
   resize: vertical;
   margin-bottom: 1rem;

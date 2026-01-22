@@ -160,6 +160,9 @@ async function submitAddress(event) {
       ? document.getElementById('manualCountry').value 
       : countrySelect.value;
     
+    const phoneCode = document.getElementById('shippingCountryCode').value;
+    const phone = phoneCode + ' ' + document.getElementById('shippingPhone').value;
+    
     if (!document.getElementById('shippingName').value || 
         !document.getElementById('shippingEmail').value ||
         !document.getElementById('shippingPhone').value ||
@@ -176,7 +179,7 @@ async function submitAddress(event) {
       mode: 'structured',
       name: document.getElementById('shippingName').value,
       email: document.getElementById('shippingEmail').value,
-      phone: document.getElementById('shippingPhone').value,
+      phone: phone,
       address: document.getElementById('shippingAddress').value,
       city: document.getElementById('shippingCity').value,
       state: document.getElementById('shippingState').value,
@@ -184,6 +187,9 @@ async function submitAddress(event) {
       country: country
     };
   } else {
+    const manualPhoneCode = document.getElementById('manualCountryCode').value;
+    const manualPhone = manualPhoneCode + ' ' + document.getElementById('manualPhone').value;
+
     if (!document.getElementById('manualName').value || 
         !document.getElementById('manualEmail').value ||
         !document.getElementById('manualPhone').value ||
@@ -196,7 +202,7 @@ async function submitAddress(event) {
       mode: 'manual',
       name: document.getElementById('manualName').value,
       email: document.getElementById('manualEmail').value,
-      phone: document.getElementById('manualPhone').value,
+      phone: manualPhone,
       fullAddress: document.getElementById('manualFullAddress').value
     };
   }
